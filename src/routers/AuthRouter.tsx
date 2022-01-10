@@ -14,6 +14,7 @@ const pages = {
   session: <h1>Session</h1>,
   add: <h1>Add</h1>,
   settings: <h1>Settings</h1>,
+  profile: <h1>Profile</h1>,
   notFound: <NotFound to="/playlists" />
 }
 
@@ -41,7 +42,9 @@ const AuthRouter = () => {
             Kokopelli
           </Typography>
           
-          <AccountCircleIcon />
+          <Link to="/profile" onClick={() => setPage('profile')}>
+            <AccountCircleIcon />
+          </Link>
         </Toolbar>
       </AppBar>
     </Paper>
@@ -51,6 +54,7 @@ const AuthRouter = () => {
         <Route path="playlists" element={pages.playlists} />
         <Route path="session" element={pages.session} />
         <Route path="add" element={pages.add} />
+        <Route path="profile" element={pages.profile} />
         <Route path="settings" element={pages.settings} />
         <Route path="*" element={pages.notFound} />
       </Routes>
