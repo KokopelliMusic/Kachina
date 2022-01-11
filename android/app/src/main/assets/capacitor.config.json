@@ -2,5 +2,6 @@
 	"appId": "com.nierot.kokopelli.kachina",
 	"appName": "Kokopelli",
 	"webDir": "build",
-	"bundledWebRuntime": false
+	"bundledWebRuntime": false,
+	"linuxAndroidStudioPath": "/usr/bin/android-studio"
 }
