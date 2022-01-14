@@ -17,6 +17,8 @@ import Profile from '../pages/Profile'
 const pages = {
   playlists: <Playlists />,
   session: <Session />,
+  add: <Add />,
+  settings: <Settings />,
   profile: <Profile />,
   notFound: <NotFound to="/playlists" />
 }
@@ -24,8 +26,8 @@ const pages = {
 /**
  * Base page component for when the user is authenticated. 
  */
-const AuthRouter = () => {
-  const [page, setPage] = React.useState('session')
+const SessionRouter = () => {
+  const [page, setPage] = React.useState('playlists')
 
   const handleChange = (_event: unknown, newPage: string) => setPage(newPage)
 
@@ -56,7 +58,9 @@ const AuthRouter = () => {
       <Routes>
         <Route path="playlists" element={pages.playlists} />
         <Route path="session" element={pages.session} />
+        <Route path="add" element={pages.add} />
         <Route path="profile" element={pages.profile} />
+        <Route path="settings" element={pages.settings} />
         <Route path="*" element={pages.notFound} />
       </Routes>
     </div>
@@ -79,10 +83,22 @@ const AuthRouter = () => {
           to="session"
           value={'session'} 
           icon={<LibraryMusicIcon />} />
+        <BottomNavigationAction 
+          label="Add"
+          component={Link}
+          to="add"
+          value={'add'}
+          icon={<PlaylistAddCircleIcon />} />
+        <BottomNavigationAction 
+          label="Settings"
+          component={Link}
+          to="settings"
+          value={'settings'}
+          icon={<SettingsIcon />} />
       </BottomNavigation>
     </Paper>
   </Box>
 }
 
 
-export default AuthRouter
+export default SessionRouter
