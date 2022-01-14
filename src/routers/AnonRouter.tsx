@@ -5,8 +5,6 @@ import Welcome from '../pages/Welcome'
 const AnonRouter = () => {
   return <Routes>
     <Route path="/" element={<Welcome />} />
-    <Route path="/signup" element={<Welcome />} />
-    <Route path="/signin" element={<Welcome />} />
     <Route path="*" element={<Welcome />} />
   </Routes>
 
