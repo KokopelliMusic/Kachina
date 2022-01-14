@@ -8,13 +8,18 @@ import AccountCircleIcon from '@mui/icons-material/AccountCircle'
 import { Box } from '@mui/system'
 import { Link, Route, Routes } from 'react-router-dom'
 import NotFound from '../pages/NotFound'
+import Playlists from '../pages/Playlists'
+import Session from '../pages/Session'
+import Settings from '../pages/Settings'
+import Add from '../pages/Add'
+import Profile from '../pages/Profile'
 
 const pages = {
-  playlists: <h1>Playlists</h1>,
-  session: <h1>Session</h1>,
-  add: <h1>Add</h1>,
-  settings: <h1>Settings</h1>,
-  profile: <h1>Profile</h1>,
+  playlists: <Playlists />,
+  session: <Session />,
+  add: <Add />,
+  settings: <Settings />,
+  profile: <Profile />,
   notFound: <NotFound to="/playlists" />
 }
 
