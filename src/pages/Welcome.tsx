@@ -201,7 +201,7 @@ const SignIn = () => {
         className="h-10 w-full text-center py-16"
         variant="h4"
         component="h1">
-          Sign up for Kokopelli
+          Sign in
       </Typography>
 
       <p className="text-center w-full">
@@ -243,7 +243,7 @@ const SignIn = () => {
         <Button
           variant="contained"
           onClick={signUp}>
-          Sign up
+          Sign in
         </Button>
       </Box>
     </main>
