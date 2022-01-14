@@ -3,6 +3,8 @@ import AnonRouter from './routers/AnonRouter'
 import AuthRouter from './routers/AuthRouter'
 import { HashRouter } from 'react-router-dom'
 
+// TODO error handler hiero
+
 
 function App() {
   return <HashRouter>
