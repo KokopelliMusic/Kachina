@@ -20,7 +20,7 @@ const pages = {
   add: <Add />,
   settings: <Settings />,
   profile: <Profile />,
-  notFound: <NotFound to="/playlists" />
+  notFound: <NotFound to="/session/session" />
 }
 
 /**
@@ -56,12 +56,12 @@ const SessionRouter = () => {
 
     <div className="h-full overflow-scroll" style={{ marginTop: '64px' }}>
       <Routes>
-        <Route path="playlists" element={pages.playlists} />
-        <Route path="session" element={pages.session} />
-        <Route path="add" element={pages.add} />
-        <Route path="profile" element={pages.profile} />
-        <Route path="settings" element={pages.settings} />
-        <Route path="*" element={pages.notFound} />
+        <Route path="/session/playlists" element={pages.playlists} />
+        <Route path="/session/session" element={pages.session} />
+        <Route path="/session/add" element={pages.add} />
+        <Route path="/session/profile" element={pages.profile} />
+        <Route path="/session/settings" element={pages.settings} />
+        <Route path="/session/*" element={pages.notFound} />
       </Routes>
     </div>
 
@@ -74,25 +74,25 @@ const SessionRouter = () => {
         <BottomNavigationAction 
           label="Playlists"
           component={Link}
-          to="playlists"
+          to="/session/playlists"
           value={'playlists'} 
           icon={<QueueMusicIcon />} />
         <BottomNavigationAction 
           label="Session"
           component={Link}
-          to="session"
+          to="/session/session"
           value={'session'} 
           icon={<LibraryMusicIcon />} />
         <BottomNavigationAction 
           label="Add"
           component={Link}
-          to="add"
+          to="/session/add"
           value={'add'}
           icon={<PlaylistAddCircleIcon />} />
         <BottomNavigationAction 
           label="Settings"
           component={Link}
-          to="settings"
+          to="/session/settings"
           value={'settings'}
           icon={<SettingsIcon />} />
       </BottomNavigation>

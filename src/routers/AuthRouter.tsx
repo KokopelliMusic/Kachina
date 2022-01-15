@@ -11,13 +11,17 @@ import SessionSelect from '../pages/auth/SessionSelect'
 import Profile from '../pages/Profile'
 import Help from '../pages/auth/Help'
 import { HelpCenter } from '@mui/icons-material'
+import SessionCreation from '../pages/auth/SessionCreation'
+import EditPlaylist from '../pages/EditPlaylist'
 
 const pages = {
   playlists: <Playlists />,
   session: <SessionSelect />,
   profile: <Profile />,
+  sessionCreation: <SessionCreation />,
+  edit: <EditPlaylist />,
   help: <Help />,
-  notFound: <NotFound to="/playlists" />
+  notFound: <NotFound to="/auth/session" />
 }
 
 /**
@@ -53,11 +57,13 @@ const AuthRouter = () => {
 
     <div className="h-full overflow-scroll" style={{ marginTop: '64px' }}>
       <Routes>
-        <Route path="playlists" element={pages.playlists} />
-        <Route path="session" element={pages.session} />
-        <Route path="profile" element={pages.profile} />
-        <Route path="help" element={pages.help} />
-        <Route path="*" element={pages.notFound} />
+        <Route path="/auth/playlists" element={pages.playlists} />
+        <Route path="/auth/session" element={pages.session} />
+        <Route path="/auth/profile" element={pages.profile} />
+        <Route path="/auth/edit/:id" element={pages.edit} />
+        <Route path="/auth/sessionCreation" element={pages.sessionCreation} />
+        <Route path="/auth/help" element={pages.help} />
+        <Route path="/auth/*" element={pages.notFound} />
       </Routes>
     </div>
 
@@ -70,19 +76,19 @@ const AuthRouter = () => {
         <BottomNavigationAction 
           label="Playlists"
           component={Link}
-          to="playlists"
+          to="/auth/playlists"
           value={'playlists'} 
           icon={<QueueMusicIcon />} />
         <BottomNavigationAction 
           label="Session"
           component={Link}
-          to="session"
+          to="/auth/session"
           value={'session'} 
           icon={<LibraryMusicIcon />} />
         <BottomNavigationAction 
           label="Help"
           component={Link}
-          to="help"
+          to="/auth/help"
           value={'help'} 
           icon={<HelpCenter />} />
       </BottomNavigation>

@@ -99,7 +99,7 @@ const SignUp = () => {
     }
 
     window.sipapu.signUp(email, password, username)
-      .then(() => navigate('/session'))
+      .then(() => navigate('/auth/session'))
       .catch(err => setSignUpError(err.message))
   }
 
@@ -191,7 +191,7 @@ const SignIn = () => {
     }
 
     window.sipapu.signIn(email, password)
-      .then(() => navigate('/session'))
+      .then(() => navigate('/auth/session'))
       .catch(err => setSignUpError(err.message))
   }
 
