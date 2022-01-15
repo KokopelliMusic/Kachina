@@ -1,51 +1,55 @@
 import { Box } from '@mui/system'
-import { Fab, Snackbar, Card, Alert, AlertTitle, CardContent, CardMedia, Typography, List, ListItem, ListItemText, ListItemAvatar } from '@mui/material'
+import { Fab, List, ListItem, ListItemAvatar, ListItemButton, ListItemText, Skeleton } from '@mui/material'
 import React, { useEffect } from 'react'
 import { PlaylistType } from 'sipapu/dist/src/services/playlist'
 import { Add } from '@mui/icons-material'
-import BadgeIcon from '@mui/icons-material/Badge'
-import CalendarTodayIcon from '@mui/icons-material/CalendarToday'
-import PlaylistPlayIcon from '@mui/icons-material/PlaylistPlay'
+import QueueMusicIcon from '@mui/icons-material/QueueMusic'
+import { useNotification } from '../components/Snackbar'
+import useRedirect from '../components/Redirect'
+
+// TODO notify that playlists are public
 
 const Playlists = () => {
   const [playlists, setPlaylists] = React.useState<PlaylistType[]>([])
-  const [error, setErrors] = React.useState<string>('NetworkError when attempting to fetch resource.')
-  const [open, setOpen] = React.useState(false)
+  const [loading, setLoading] = React.useState(true)
+  const [notify, Snackbar] = useNotification()
 
   useEffect(() => {
     window.sipapu.Playlist.getAllFromUser()
       .then(setPlaylists)
+      .then(() => setLoading(false))
       .catch(err => {
-        setErrors(err.message)
-        setOpen(true)
+        notify({ title: 'Error', message: err.message, severity: 'error' })
       })
   }, [])
 
-  const handleClose = () => setOpen(false)
+  const loadingPlaylist = <Box className="w-full flex" height="13%">
+    <div className="pl-4 w-20 center">
+      <Skeleton variant="circular" width={40} height={40} />
+    </div>
+    <Skeleton className="center ml-2" width="65%" height="100%" />
+  </Box>
 
-  // const list = playlists.map(playlist => {  
-  //   return <ListItem key={playlist.id}>
-  //     <ListItemAvatar>
-  //       <ListItemAvatar />
-  //     </ListItemAvatar>
-  //     <ListItemText primary={playlist.name} secondary={playlist.createdAt} />
-  //   <ListItem/>
-  // })
+  if (loading) {
+    return <Box className="w-full h-full">
+      <div className="pt-1"/>
+      {[...Array(10)].map(() => loadingPlaylist)}
+    </Box>  
+  }
 
   return <Box className="w-full h-full">
-    <main className="mb-auto pt-4 flex flex-col items-center">
-      <List sx={{ width: '100%', bgcolor: 'background.paper' }}>
-
+    <Snackbar />
+    <main className="mb-auto flex flex-col items-center scroll mb-8">
+      <List sx={{ width: '100%' }}>
+        {playlists.map(playlist => (<div key={playlist.id}>
+          <PlaylistItem playlist={playlist}/>
+        </div>))}
       </List>
-      {/* <PlaylistItem playlist={{ name:'Playlist #1', createdAt: new Date(), id: 0, user: 'Niels', users: ['1','2','3','4'] }} />
-      <PlaylistItem playlist={{ name:'Playlist #1', createdAt: new Date(), id: 0, user: 'Niels', users: ['1','2','3','4'] }} />
-      <PlaylistItem playlist={{ name:'Playlist #1', createdAt: new Date(), id: 0, user: 'Niels', users: ['1','2','3','4'] }} /> */}
     </main>
 
-    <ErrorSnack open={open} error={error} handleClose={handleClose} />
 
     <div className="fixed bottom-20 right-6">
-      <Fab color="primary">
+      <Fab color="primary" onClick={() => notify({ title: 'Error', message: 'Adding a new playlist is not supported yet', severity: 'error'})}>
         <Add />
       </Fab>
     </div>
@@ -57,58 +61,18 @@ type PlaylistItemProps = {
 }
 
 const PlaylistItem = ({ playlist }: PlaylistItemProps) => {
-  return <Card className="flex w-11/12 my-2">
-    <CardMedia
-      component="img"
-      sx={{ height: 90, width: 40 }}
-      className="ml-2 my-1"
-      alt="Playlist img"
-      image="/kokopelli.png" />
-    <Box className="flex flex-col justify-between ml-2">
-      <CardContent>
+  const redirect = useRedirect()
 
-        <div className="flex">
-          <BadgeIcon />
-          <h2 className="pl-1">
-            {playlist.name}
-          </h2>
-        </div>
+  const onClick = () => redirect('/edit')
 
-        <div className="flex">
-          <CalendarTodayIcon />
-          <h3 className="pl-1">
-            {playlist.createdAt.toLocaleDateString()}
-          </h3>
-        </div>
-      </CardContent>
-    </Box>
-
-    <Box>
-    </Box>
-  </Card>
-}
-
-type SnackProps = {
-  open: boolean
-  error: string
-  handleClose: () => void
-}
-
-const ErrorSnack = ({ open, error, handleClose }: SnackProps) => {
-  return <div>
-    <Snackbar
-      open={open}
-      sx={{ bottom: { xs: 150, sm: 0 } }}
-      onClose={handleClose}
-      autoHideDuration={6000}>
-      <Alert severity="error" onClose={handleClose}>
-        <AlertTitle>
-          Failed to load playlists 
-        </AlertTitle>
-        {error}
-      </Alert>
-    </Snackbar>
-  </div>
+  return <ListItem>
+    <ListItemButton onClick={onClick}>
+      <ListItemAvatar>
+        <QueueMusicIcon />
+      </ListItemAvatar>
+      <ListItemText primary={playlist.name} secondary={playlist.createdAt.toDateString()} />
+    </ListItemButton>
+  </ListItem>
 }
 
 export default Playlists
