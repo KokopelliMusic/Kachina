@@ -1,6 +1,6 @@
 import React from 'react'
 import { Route, Routes } from 'react-router-dom'
-import Welcome from '../pages/Welcome'
+import Welcome from '../pages/anon/Welcome'
 
 const AnonRouter = () => {
   return <Routes>
