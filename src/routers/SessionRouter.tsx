@@ -9,9 +9,9 @@ import { Box } from '@mui/system'
 import { Link, Route, Routes } from 'react-router-dom'
 import NotFound from '../pages/NotFound'
 import Playlists from '../pages/Playlists'
-import Session from '../pages/Session'
-import Settings from '../pages/Settings'
-import Add from '../pages/Add'
+import Session from '../pages/session/Session'
+import Settings from '../pages/session/Settings'
+import Add from '../pages/session/Add'
 import Profile from '../pages/Profile'
 
 const pages = {
