@@ -1,23 +1,22 @@
 import React from 'react'
 import { AppBar, BottomNavigation, BottomNavigationAction, Paper, Toolbar, Typography } from '@mui/material'
-import PlaylistAddCircleIcon from '@mui/icons-material/PlaylistAddCircle'
 import QueueMusicIcon from '@mui/icons-material/QueueMusic'
-import SettingsIcon from '@mui/icons-material/Settings'
 import LibraryMusicIcon from '@mui/icons-material/LibraryMusic'
 import AccountCircleIcon from '@mui/icons-material/AccountCircle'
 import { Box } from '@mui/system'
 import { Link, Route, Routes } from 'react-router-dom'
 import NotFound from '../pages/NotFound'
 import Playlists from '../pages/Playlists'
-import Session from '../pages/Session'
-import Settings from '../pages/Settings'
-import Add from '../pages/Add'
+import SessionSelect from '../pages/auth/SessionSelect'
 import Profile from '../pages/Profile'
+import Help from '../pages/auth/Help'
+import { HelpCenter } from '@mui/icons-material'
 
 const pages = {
   playlists: <Playlists />,
-  session: <Session />,
+  session: <SessionSelect />,
   profile: <Profile />,
+  help: <Help />,
   notFound: <NotFound to="/playlists" />
 }
 
@@ -57,6 +56,7 @@ const AuthRouter = () => {
         <Route path="playlists" element={pages.playlists} />
         <Route path="session" element={pages.session} />
         <Route path="profile" element={pages.profile} />
+        <Route path="help" element={pages.help} />
         <Route path="*" element={pages.notFound} />
       </Routes>
     </div>
@@ -79,6 +79,12 @@ const AuthRouter = () => {
           to="session"
           value={'session'} 
           icon={<LibraryMusicIcon />} />
+        <BottomNavigationAction 
+          label="Help"
+          component={Link}
+          to="help"
+          value={'help'} 
+          icon={<HelpCenter />} />
       </BottomNavigation>
     </Paper>
   </Box>
