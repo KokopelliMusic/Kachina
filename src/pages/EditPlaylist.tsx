@@ -45,10 +45,10 @@ const EditPlaylist = () => {
     </Box>
   }
 
-  return <Box>
+  return <Box className="w-full h-full">
     <Snackbar />
     
-    <main>
+    <main className="mb-8 scroll">
       <Typography
         className="center w-full py-4"
         variant="h2">
@@ -83,8 +83,6 @@ type SongItemProps = {
 const SongItem = ({ song }: SongItemProps) => {
   const cover  = song.cover ?? '/missing.jpg'
   const artist = song.artist ?? 'YouTube'
-
-  console.log(cover)
 
   return <ListItem sx={{ height: 72 }}>
     <ListItemAvatar>
