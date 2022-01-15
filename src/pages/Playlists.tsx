@@ -23,7 +23,7 @@ const Playlists = () => {
       })
   }, [])
 
-  const loadingPlaylist = <Box className="w-full flex" height="13%">
+  const loadingPlaylist = <Box className="w-full flex" height={88}>
     <div className="pl-4 w-20 center">
       <Skeleton variant="circular" width={40} height={40} />
     </div>
@@ -63,7 +63,7 @@ type PlaylistItemProps = {
 const PlaylistItem = ({ playlist }: PlaylistItemProps) => {
   const redirect = useRedirect()
 
-  const onClick = () => redirect('/edit')
+  const onClick = () => redirect('/edit/' + playlist.id)
 
   return <ListItem>
     <ListItemButton onClick={onClick}>
