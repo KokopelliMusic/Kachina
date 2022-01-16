@@ -25,6 +25,7 @@ const useRedirect = () => {
     } else {
       navigate(to)
     }
+    setTo('')
   }, [to])
 
   return setTo
