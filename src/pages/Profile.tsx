@@ -1,25 +1,35 @@
-import { Typography } from '@mui/material'
+import { Typography, Button } from '@mui/material'
 import { Box } from '@mui/system'
 import React, { useEffect, useState } from 'react'
+import { ProfileType } from 'sipapu/dist/src/services/profile'
+import { useNotification } from '../components/Snackbar'
 
 const Profile = () => {
-  const [username, setUsername] = useState<string>()
+  const [notify, Snackbar] = useNotification()
+
+  const [user, setUser] = useState<ProfileType>()
 
 
   useEffect(() => {
-    window.sipapu.getUsername()
-      .then(name => setUsername(name))
+    window.sipapu.Profile.getCurrent()
+      .then(setUser)
       .catch(err => {
-        alert('fucking error handling')
+        notify({ title: 'Error', message: err.message, severity: 'error' })
       })
   })
 
   return <Box>
+    <Snackbar />
+
     <Typography
       variant="h3"
       component="h3">
-      Hello, {username}!
+      Hello, {user?.username}!
     </Typography>
+
+    <Button onClick={() => window.sipapu.signOut()}>
+      Sign Out
+    </Button>
   </Box>
 }
 
