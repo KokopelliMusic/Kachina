@@ -13,6 +13,10 @@ import Help from '../pages/auth/Help'
 import { HelpCenter } from '@mui/icons-material'
 import SessionCreation from '../pages/auth/SessionCreation'
 import EditPlaylist from '../pages/EditPlaylist'
+import useRedirect from '../components/Redirect'
+import Add from '../pages/add/Add'
+import Spotify from '../pages/add/Spotify'
+import YouTube from '../pages/add/YouTube'
 
 const pages = {
   playlists: <Playlists />,
@@ -20,6 +24,9 @@ const pages = {
   profile: <Profile />,
   sessionCreation: <SessionCreation />,
   edit: <EditPlaylist />,
+  add: <Add />,
+  spotify: <Spotify />,
+  youtube: <YouTube />,
   help: <Help />,
   notFound: <NotFound to="/auth/session" />
 }
@@ -28,10 +35,17 @@ const pages = {
  * Base page component for when the user is authenticated. 
  */
 const AuthRouter = () => {
+  const redirect = useRedirect()
+
   const [page, setPage] = React.useState('session')
 
   const handleChange = (_event: unknown, newPage: string) => setPage(newPage)
 
+  const clickOnProfile = () => {
+    setPage('profile')
+    redirect('/profile')
+  }
+  
   return <Box className="h-screen w-screen overflow-hidden">
     <Paper elevation={3}>
       <AppBar 
@@ -48,9 +62,9 @@ const AuthRouter = () => {
             Kokopelli
           </Typography>
           
-          <Link to="/profile" onClick={() => setPage('profile')}>
+          <button onClick={clickOnProfile}>
             <AccountCircleIcon />
-          </Link>
+          </button>
         </Toolbar>
       </AppBar>
     </Paper>
@@ -61,6 +75,9 @@ const AuthRouter = () => {
         <Route path="/auth/session" element={pages.session} />
         <Route path="/auth/profile" element={pages.profile} />
         <Route path="/auth/edit/:id" element={pages.edit} />
+        <Route path="/auth/add/:id" element={pages.add} />
+        <Route path="/auth/spotify/:id" element={pages.spotify} />
+        <Route path="/auth/youtube/:id" element={pages.youtube} />
         <Route path="/auth/sessionCreation" element={pages.sessionCreation} />
         <Route path="/auth/help" element={pages.help} />
         <Route path="/auth/*" element={pages.notFound} />
