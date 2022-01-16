@@ -13,6 +13,7 @@ import Session from '../pages/session/Session'
 import Settings from '../pages/session/Settings'
 import Add from '../pages/session/Add'
 import Profile from '../pages/Profile'
+import useRedirect from '../components/Redirect'
 
 const pages = {
   playlists: <Playlists />,
@@ -27,9 +28,16 @@ const pages = {
  * Base page component for when the user is authenticated. 
  */
 const SessionRouter = () => {
+  const redirect = useRedirect()
+
   const [page, setPage] = React.useState('playlists')
 
   const handleChange = (_event: unknown, newPage: string) => setPage(newPage)
+
+  const clickOnProfile = () => {
+    setPage('profile')
+    redirect('/profile')
+  }
 
   return <Box className="h-screen w-screen overflow-hidden">
     <Paper elevation={3}>
@@ -47,9 +55,9 @@ const SessionRouter = () => {
             Kokopelli
           </Typography>
           
-          <Link to="/profile" onClick={() => setPage('profile')}>
+          <button onClick={clickOnProfile}>
             <AccountCircleIcon />
-          </Link>
+          </button>
         </Toolbar>
       </AppBar>
     </Paper>
