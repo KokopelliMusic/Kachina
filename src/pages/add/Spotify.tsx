@@ -1,5 +1,6 @@
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { List, ListItem, ListItemAvatar, ListItemButton, ListItemText, TextField, Typography } from '@mui/material'
+import { Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, List, ListItem, ListItemAvatar, ListItemButton, ListItemText, TextField, Typography } from '@mui/material'
 import { Box } from '@mui/system'
 import React, { useEffect, useRef, useState } from 'react'
 import { useParams } from 'react-router-dom'
@@ -7,8 +8,10 @@ import useRedirect from '../../components/Redirect'
 import { useNotification } from '../../components/Snackbar'
 import Kokopelli from '../../components/Kokopelli'
 import { useDebounce } from 'use-debounce'
+import { SongEnum } from 'sipapu/dist/src/services/song'
+import { ProfileType } from 'sipapu/dist/src/services/profile'
 
-const TIME_BETWEEN_QUERIES = 1000
+const TIME_BETWEEN_QUERIES = 500
 const INPUT_FETCH_TIME     = 500
 
 // TODO:
@@ -21,8 +24,12 @@ const Spotify = () => {
   const [notify, Snackbar]  = useNotification()
   const inputRef            = useRef<HTMLInputElement>(null)
   
-  const [query, setQuery]             = useState('')
-  const [queryResult, setQueryResult] = useState<any>({})
+  const [query, setQuery]                   = useState('')
+  const [queryResult, setQueryResult]       = useState<any>({})
+  const [openModal, setOpenModal]           = React.useState(false)
+  const [forceReload, setForceReload]       = React.useState(false)
+  const [selectedResult, setSelectedResult] = React.useState<any>({})
+  const [profile, setProfile]               = React.useState<ProfileType>()
 
   // The query is debounced so that we don't make too many requests to the Spotify API
   const [value] = useDebounce(query, TIME_BETWEEN_QUERIES)
@@ -31,6 +38,10 @@ const Spotify = () => {
     if (!params.id) {
       notify({ title: 'Playlist ID unknown', message: 'Cannot find anything about this playlist, please log out and try again.', severity: 'error' })
     }
+
+    window.sipapu.Profile.getCurrent()
+      .then(setProfile)
+      .catch(err => notify({ title: 'Error getting profile', message: err.message, severity: 'error' }))
 
     // Fetch the input value every 500 ms, this is to prevent lag from setState
     // setState gives lag since when there are 20 songs, rerendering is quite expensive
@@ -55,6 +66,20 @@ const Spotify = () => {
         notify({ title: 'Error', message: err.message, severity: 'error' })
       })
   }, [value])
+
+  useEffect(() => {
+    if (forceReload) {
+      setForceReload(false)
+      window.location.reload()
+    }
+  }, [forceReload])
+
+  useEffect(() => {
+    console.log(selectedResult)
+    if (selectedResult.id) {
+      setOpenModal(true)
+    }
+  }, [selectedResult])
 
   const SearchField = () => <Box>
     <div className="w-full px-4 pt-4">
@@ -89,15 +114,31 @@ const Spotify = () => {
       <div className="w-full center">
         <Kokopelli />
       </div>
+
+      <div className="w-full center pt-4">
+        <Button variant="contained" onClick={() => redirect('/edit/' + params.id)}>
+          Back to playlist
+        </Button>
+      </div>
+
+
     </Box>
 
   return <Box>
     <Snackbar />
     <SearchField />
+    <AddSongModal 
+      open={openModal} 
+      setOpen={setOpenModal} 
+      notify={notify} 
+      forceReload={setForceReload} 
+      queryResult={selectedResult} 
+      playlistId={parseInt(params.id!)} 
+      profile={profile}/>
 
     <div className="pb-2">
       <List>
-        {queryResult.body.tracks.items.map((res: any) => <SearchResult key={res.id} queryResult={res} />)}
+        {queryResult.body.tracks.items.map((res: any) => <SearchResult key={res.id} queryResult={res} setSelectedResult={setSelectedResult} />)}
       </List>
     </div>
 
@@ -114,9 +155,10 @@ const Spotify = () => {
 type SearchResultProps = {
   className?: string
   queryResult: any
+  setSelectedResult: (queryResult: any) => void
 }
 
-const SearchResult = ({ className, queryResult }: SearchResultProps) => {
+const SearchResult = ({ className, queryResult, setSelectedResult }: SearchResultProps) => {
   const artists  = queryResult.artists.map((artist: { name: string }) => artist.name).join(', ')
   // Always take the smallest image
   let coverImg
@@ -128,8 +170,7 @@ const SearchResult = ({ className, queryResult }: SearchResultProps) => {
   }
 
   const addSong = () => {
-    // TODO 
-    alert(queryResult.name)
+    setSelectedResult(queryResult)
   }
 
   return <ListItemButton onClick={addSong}>
@@ -154,6 +195,60 @@ const SearchResult = ({ className, queryResult }: SearchResultProps) => {
         secondary={artists}/>
     </ListItem>
   </ListItemButton>
+}
+
+type AddSongModalProps = {
+  open: boolean
+  setOpen: (open: boolean) => void
+  notify: (notification: { title: string, message: string, severity: 'error' | 'success' }) => void
+  forceReload: (force: boolean) => void
+  playlistId: number
+  profile: ProfileType | undefined
+  queryResult: any
+}
+
+const AddSongModal = ({ open, setOpen, notify, forceReload, queryResult, playlistId, profile }: AddSongModalProps) => {
+  const handleClose = () => setOpen(false)
+
+  const artist = queryResult.artists?.map((artist: { name: string }) => artist.name).join(', ') ?? 'Unknown Artist'
+
+  const create = () => {
+  
+    window.sipapu.Song.createSpotify({
+      title: queryResult.name,
+      platformId: queryResult.id,
+      addedBy: profile!.id,
+      playlistId: playlistId,
+      queryResult,
+      songType: SongEnum.SPOTIFY,
+      artist,
+      cover: queryResult.album.images[0].url ?? '/missing.jpg',
+      length: queryResult.duration_ms,
+      album: queryResult.album.name,      
+    })
+      .then(() => forceReload(true))
+      .catch(err => {
+        notify({ title: 'Error', message: err.message, severity: 'error' })
+      })
+  }
+  
+  if (!queryResult.id) return null
+
+  return <Dialog open={open}>
+    <DialogTitle>Add song</DialogTitle>
+
+    <DialogContent>
+      <DialogContentText>
+        Do you want to add {queryResult.name} by {artist} from {queryResult.album.name} to this playlist?
+      </DialogContentText>
+
+    </DialogContent>
+
+    <DialogActions>
+      <Button onClick={handleClose}>Cancel</Button>
+      <Button onClick={create}>Add</Button>
+    </DialogActions>
+  </Dialog>
 }
 
 export default Spotify
