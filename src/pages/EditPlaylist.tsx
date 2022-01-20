@@ -1,4 +1,4 @@
-import { Avatar, CircularProgress, Divider, Fab, List, ListItem, ListItemAvatar, ListItemText, Typography } from '@mui/material'
+import { Avatar, Button, Skeleton, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Divider, Fab, List, ListItem, ListItemAvatar, ListItemButton, ListItemText, Typography } from '@mui/material'
 import { Box } from '@mui/system'
 import React, { useState, useEffect } from 'react'
 import { Add } from '@mui/icons-material'
@@ -10,70 +10,95 @@ import useRedirect from '../components/Redirect'
 import { ProfileType } from 'sipapu/dist/src/services/profile'
 import { purple } from '@mui/material/colors'
 
-// TODO AddedBy toevoegen voor elk nummer
-
 const EditPlaylist = () => {
   const params              = useParams()
   const redirect            = useRedirect()
   const [notify, Snackbar]  = useNotification()
 
+  const [loading, setLoading]   = useState<boolean>(true)
   const [playlist, setPlaylist] = useState<PlaylistWithSongsType | undefined>(undefined)
   const [users, setUsers]       = useState<ProfileType[] | undefined>(undefined)
-  const [user, setUser]          = useState<ProfileType | undefined>(undefined)
+  const [user, setUser]         = useState<ProfileType | undefined>(undefined)
   
-
+  // Modal state
+  const [modalOpen, setModalOpen]       = useState(false)
+  const [selectedSong, setSelectedSong] = useState<SongType | undefined>(undefined)
+  
   useEffect(() => {
     if (!params.id) {
       notify({ title: 'Playlist ID unknown', message: 'Cannot find anything about this playlist', severity: 'error' })
       return
     }
-
-    window.sipapu.Playlist.getWithSongs(parseInt(params.id))
-      .then(setPlaylist)
+    window.sipapu.Profile.getCurrent()
+      .then(setUser)
       .catch(err => {
         notify({ title: 'Error', message: err.message, severity: 'error' })
       })
 
-    window.sipapu.Profile.getCurrent()
-      .then(setUser)
+    window.sipapu.Playlist.getWithSongs(parseInt(params.id))
+      .then(async playlist => {
+        await window.sipapu.Playlist.getUsers(playlist.id)
+          .then(setUsers)
+          .catch(err => {
+            notify({ title: 'Error', message: err.message, severity: 'error' })
+          })
+
+        setPlaylist(playlist)
+      })
+      .then(() => setLoading(false))
       .catch(err => {
         notify({ title: 'Error', message: err.message, severity: 'error' })
       })
   }, [])
 
   useEffect(() => {
-    if (!playlist) return
+    if (!selectedSong) return
 
-    window.sipapu.Playlist.getUsers(playlist.id)
-      .then(u => {
-        console.log(u)
-        return u
-      })
-      .then(setUsers)
-      .catch(err => {
-        notify({ title: 'Error', message: err.message, severity: 'error' })
-      })
-  }, [playlist])
- 
+    setModalOpen(true)
+  }, [selectedSong])
+
+
   // This is safe to do since we already check it in useEffect, that is before render so its safe
   // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
   const clickAdd = () => redirect('/add/' + parseInt(params.id!))
 
-  // TODO
-  if (!playlist) {
-    return <Box className="w-full" height="77%">
-      <Snackbar />
-      TODO: Skeleton loading
+  const loadingSong = <Box className="w-full flex" height={88}>
+    <div className="pl-4 w-20 center">
+      <Skeleton variant="circular" width={40} height={40} />
+    </div>
 
-      <div className="w-full h-full flex justify-center items-center">
-        <CircularProgress />
-        <div />
-      </div>
+    <Skeleton className="center ml-2" width="65%" height="100%" />
+  </Box>
+
+  if (loading || !playlist || !users) {
+    return <Box className="w-full h-full">
+      <Snackbar />
+
+      <main className="mb-8 scroll">
+        <div className="center w-full pt-2">
+          <Skeleton width="58%" height={58} />
+        </div>
+
+        <div className="w-full flex justify-center items-center pb-4">
+          <Skeleton variant="circular" width={36} height={36} />
+
+          <div className="ml-2" />
+
+          <Skeleton width={100} height={36} />
+        </div>
+
+        <div className="w-full center pb-4">
+          <Divider className="w-80"/>
+        </div>
+
+        {[...Array(20)].map((_, i) => <div key={i}>{loadingSong}</div>)}
+      </main>
     </Box>
   }
 
   return <Box className="w-full h-full">
     <Snackbar />
+    <SongDetailModal open={modalOpen} setOpen={setModalOpen} song={selectedSong} notify={notify} />
     
     <main className="mb-8 scroll">
       <div className="center w-full">
@@ -103,7 +128,7 @@ const EditPlaylist = () => {
       </div>
 
       <List>
-        {playlist.songs.map(song => <SongItem key={song.id} song={song} />)}
+        {playlist.songs.map(song => <SongItem key={song.id} song={song} selectSong={setSelectedSong} openModal={() => setModalOpen(true)} />)}
       </List>
     </main>
 
@@ -119,19 +144,78 @@ const EditPlaylist = () => {
 
 type SongItemProps = {
   song: SongType
+  selectSong: (song: SongType) => void
+  openModal: () => void
 }
 
-const SongItem = ({ song }: SongItemProps) => {
+const SongItem = ({ song, selectSong, openModal }: SongItemProps) => {
   const cover  = song.cover ?? '/missing.jpg'
   const artist = song.artist ?? 'YouTube'
 
-  return <ListItem sx={{ height: 72 }}>
-    <ListItemAvatar>
-      <Avatar variant="square" alt={song.title} src={cover} />
-    </ListItemAvatar>
+  return <ListItemButton disableGutters onClick={() => {
+    selectSong(song)
+    openModal()
+  }}>
+    <ListItem sx={{ height: 72 }}>
+      <ListItemAvatar>
+        <Avatar variant="square" alt={song.title} src={cover} />
+      </ListItemAvatar>
 
-    <ListItemText primary={song.title} secondary={artist + ' | TODO: addedBy'} primaryTypographyProps={{ noWrap: true }} />
-  </ListItem>
+      <ListItemText primary={song.title} secondary={artist} primaryTypographyProps={{ noWrap: true }} />
+
+    </ListItem>
+  </ListItemButton>
+  
+}
+
+type SongDetailModalType = {
+  song: SongType | undefined
+  open: boolean
+  setOpen: (open: boolean) => void
+  notify: (notification: { title: string, message: string, severity: 'error' | 'success' }) => void
+}
+
+const SongDetailModal = ({ open, setOpen, song, notify }: SongDetailModalType) => {
+  if (!song) return null
+
+  const [user, setUser] = useState<ProfileType | undefined>(undefined)
+
+  useEffect(() => {
+    window.sipapu.Profile.get(song.addedBy)
+      .then(setUser)
+      .catch(err => {
+        notify({ title: 'Error', message: err.message, severity: 'error' })
+      })
+  }, [])
+
+  return <Dialog open={open} onClose={() => setOpen(false)}>
+    <DialogTitle>{song.title}</DialogTitle>
+
+    <DialogContent>
+      <img src={song.cover ?? '/missing.jpg'} alt={song.title} className="w-full h-full" width={36} height={36} />
+      {song.songType === 'youtube' ? null :
+        <div className="pt-2">        
+          <DialogContentText>
+            Performed by: {song.artist ?? ''}
+          </DialogContentText>
+        
+          <DialogContentText>
+            On: {song.album ?? 'YouTube'}
+          </DialogContentText>
+        </div>
+
+      }
+
+      <DialogContentText>
+        Added by: {!user ? '...' : user.username}
+      </DialogContentText>
+
+    </DialogContent>
+
+    <DialogActions>
+      <Button onClick={() => setOpen(false)}>Close</Button>
+    </DialogActions>
+  </Dialog>
 }
 
 export default EditPlaylist
