@@ -7,6 +7,8 @@ declare global {
             REACT_APP_SUPABASE_URL: string;
             REACT_APP_SUPABASE_KEY: string;
             REACT_APP_SPOTIFY_SEARCH_STRING: string;
+            REACT_APP_SPOTIFY_CLIENT_ID: string;
+            REACT_APP_SPOTIFY_AUTH: string;
         }
     }
 
