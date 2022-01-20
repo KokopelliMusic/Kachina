@@ -17,6 +17,7 @@ import useRedirect from '../components/Redirect'
 import Add from '../pages/add/Add'
 import Spotify from '../pages/add/Spotify'
 import YouTube from '../pages/add/YouTube'
+import LogIntoSpotify from '../pages/LogIntoSpotify'
 
 const pages = {
   playlists: <Playlists />,
@@ -27,6 +28,7 @@ const pages = {
   add: <Add />,
   spotify: <Spotify />,
   youtube: <YouTube />,
+  logIntoSpotify: <LogIntoSpotify redirectBack="/#/auth/profile" />,
   help: <Help />,
   notFound: <NotFound to="/auth/session" />
 }
@@ -38,11 +40,16 @@ const AuthRouter = () => {
   const redirect = useRedirect()
 
   const [page, setPage] = React.useState('session')
+  const [shadow, setShadow] = React.useState(3)
 
-  const handleChange = (_event: unknown, newPage: string) => setPage(newPage)
+  const handleChange = (_event: unknown, newPage: string) => {
+    setShadow(3)
+    setPage(newPage)
+  }
 
   const clickOnProfile = () => {
     setPage('profile')
+    setShadow(0)
     redirect('/profile')
   }
   
@@ -50,6 +57,7 @@ const AuthRouter = () => {
     <Paper elevation={3}>
       <AppBar 
         position="fixed"
+        elevation={shadow}
       >
         <Toolbar style={{ height: '64px' }}>
           <img src="/kokopelli-white.png" alt="Kokopelli" style={{ height: '70%', objectFit: 'contain' }}/>
@@ -79,6 +87,7 @@ const AuthRouter = () => {
         <Route path="/auth/spotify/:id" element={pages.spotify} />
         <Route path="/auth/youtube/:id" element={pages.youtube} />
         <Route path="/auth/sessionCreation" element={pages.sessionCreation} />
+        <Route path="/auth/login/spotify" element={pages.logIntoSpotify} />
         <Route path="/auth/help" element={pages.help} />
         <Route path="/auth/*" element={pages.notFound} />
       </Routes>
