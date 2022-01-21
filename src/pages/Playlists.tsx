@@ -99,15 +99,20 @@ const Playlists = () => {
 
 type PlaylistItemProps = {
   playlist: PlaylistType
+  onClick?: () => void
 }
 
-const PlaylistItem = ({ playlist }: PlaylistItemProps) => {
+export const PlaylistItem = ({ playlist, onClick }: PlaylistItemProps) => {
   const redirect = useRedirect()
 
-  const onClick = () => redirect('/edit/' + playlist.id)
+  const onButtonClick = () => {
+    // if the prop is defined then use that
+    if (onClick) return onClick()
+    redirect('/edit/' + playlist.id)
+  }
 
   return <ListItem>
-    <ListItemButton onClick={onClick}>
+    <ListItemButton onClick={onButtonClick}>
       <ListItemAvatar>
         <QueueMusicIcon />
       </ListItemAvatar>
@@ -123,7 +128,7 @@ type NewPlaylistModalProps = {
   forceReload: (force: boolean) => void
 }
 
-const NewPlaylistModal = ({ open, setOpen, notify, forceReload }: NewPlaylistModalProps) => {
+export const NewPlaylistModal = ({ open, setOpen, notify, forceReload }: NewPlaylistModalProps) => {
   const [name, setName] = React.useState('')
   const [error, setError] = React.useState(false)
 
