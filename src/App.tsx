@@ -9,7 +9,7 @@ function App() {
 
   let sessionPath = false
 
-  if (window.location.pathname.startsWith('/session')) {
+  if (window.location.hash.startsWith('#/session')) {
     sessionPath = true
   }
 
