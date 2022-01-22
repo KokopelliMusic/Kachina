@@ -8,6 +8,8 @@ import { NewPlaylistModal, PlaylistItem } from '../Playlists'
 import { Add } from '@mui/icons-material'
 import { PlaylistType } from 'sipapu/dist/src/services/playlist'
 import Kokopelli from '../../components/Kokopelli'
+import { createSpotifyLink, fetchSpotifyToken } from '../LogIntoSpotify'
+import OTP from '../../components/OTP'
 
 // 1. Session settings
 // 2. Playlist selection
@@ -16,22 +18,60 @@ import Kokopelli from '../../components/Kokopelli'
 // 5. redirect to /session/session
 
 const SessionCreation = () => {
-  const [step, setStep]         = useState<number>(0)
-  const [settings, setSettings] = useState<SessionSettings>(DEFAULT_SETTINGS)
-  const [playlist, setPlaylist] = useState<number>()
+  const [notify, Snackbar] = useNotification()
 
-  const next = () => setStep(step + 1)
+  const [step, setStep]               = useState<number>(0)
+  const [settings, setSettings]       = useState<SessionSettings>(DEFAULT_SETTINGS)
+  const [playlist, setPlaylist]       = useState<number>()
+  const [spotifyCode, setSpotifyCode] = useState<string>('')
+  const [sessionCode, setSessionCode] = useState<string>('')
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search)
+    const hashParams = new URLSearchParams(window.location.hash.split('?')[1])
+
+    if (params.get('code')) {
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      setSpotifyCode(params.get('code')!)
+      setStep(2) // spotify step
+    }
+
+    if (hashParams.get('step')) {
+      setStep(2) // tv step
+    }
+  }, [])
+
+  useEffect(() => {
+    if (!sessionCode || sessionCode.length !== 4) return
+
+    // This is safe
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    window.sipapu.Session.claim(playlist!, sessionCode, settings)
+      .then(() => {
+        window.location.href = '#/session/session'
+      })
+      .catch(err => {
+        notify({ title: 'Error', message: err.message, severity: 'error' })
+      })
+  }, [sessionCode])
+
+  const next = () => {
+    setStep(step + 1)
+    document.getElementById('main-div')?.scrollTo(0,0)
+  }
   const skip = () => setStep(step + 2)
  
   const pages = [
-    <SetSessionSettings key={0} next={next} setSettings={setSettings} settings={settings} />,
-    <PlaylistSelection key={1} next={next} skip={skip} setPlaylist={setPlaylist} settings={settings} />,
-    <SpotifyCheck key={2} next={next} />,
-    <ConnectToTv key={3} next={next} />,
+    <SetSessionSettings key={0} next={next} setSettings={setSettings} settings={settings} notify={notify} />,
+    <PlaylistSelection key={1} next={next} skip={skip} setPlaylist={setPlaylist} settings={settings} notify={notify} />,
+    <SpotifyCheck key={2} next={next} code={spotifyCode} notify={notify}/>,
+    <ConnectToTv key={3} next={next} notify={notify} setCode={setSessionCode} />,
   ]
 
-  return <Box>
+  return <Box id="main-div" className="h-full">
+    <Snackbar />
     {pages[step]}
+    <div className='pb-32' />
   </Box>
 }
 
@@ -40,6 +80,7 @@ type Props = {
   next: () => void
   skip?: () => void
   settings?: SessionSettings
+  notify: (settings: any) => void
 }
 
 type SetSessionSettingsProps = Props & {
@@ -47,9 +88,7 @@ type SetSessionSettingsProps = Props & {
   setSettings: (settings: SessionSettings) => void
 }
 
-const SetSessionSettings = ({ next, settings, setSettings }: SetSessionSettingsProps ) => {
-  const [notify, Snackbar] = useNotification()
-
+const SetSessionSettings = ({ next, settings, setSettings, notify }: SetSessionSettingsProps ) => {
   // Default settings
   // const [settings, setSettings]     = useState<SessionSettings>(DEFAULT_SETTINGS)
   const [modalOpen, setModalOpen]   = useState<boolean>(false)
@@ -219,9 +258,7 @@ const SetSessionSettings = ({ next, settings, setSettings }: SetSessionSettingsP
     setModalOpen(true)
   }
 
-  return <Box className="p-4 h-full mb-32">
-    <Snackbar />
-
+  return <Box className="p-4">
     <SettingsInfoModal open={modalOpen} setOpen={setModalOpen} title={modalTitle} info={modalInfo} />
     <Typography
       variant="h5">
@@ -361,9 +398,7 @@ type PlaylistSelectionProps = Props & {
   setPlaylist: (playlist: number) => void
 }
 
-const PlaylistSelection = ({ next, skip, setPlaylist, settings }: PlaylistSelectionProps) => {
-  const [notify, Snackbar]            = useNotification()
-
+const PlaylistSelection = ({ next, skip, setPlaylist, settings, notify }: PlaylistSelectionProps) => {
   const [playlists, setPlaylists]     = useState<PlaylistType[]>([])
   const [loading, setLoading]         = useState(true)
   const [openModal, setOpenModal]     = useState(false)
@@ -390,7 +425,7 @@ const PlaylistSelection = ({ next, skip, setPlaylist, settings }: PlaylistSelect
 
   const selectPlaylist = (id: number) => {
     setPlaylist(id)
-    if (spotify && settings?.allowSpotify) {
+    if (spotify || !settings?.allowSpotify) {
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       return skip!()
     }
@@ -407,18 +442,17 @@ const PlaylistSelection = ({ next, skip, setPlaylist, settings }: PlaylistSelect
 
   if (loading) {
     return <Box className="w-full h-full">
-      <Snackbar />
       <div className="pt-1"/>
       {[...Array(10)].map((_val, idx) => <div key={idx}>{loadingPlaylist}</div>)}
     </Box>  
   }
 
   if (playlists.length === 0) {
-    return <Box className="h-4/6 flex items-center">
+    return <Box className="h-4/6 flex items-center p-4">
       <div>
-        <Snackbar />
         <NewPlaylistModal open={openModal} setOpen={setOpenModal} notify={notify} forceReload={setForceReload} />
         <Typography
+          className="pt-4"
           variant="h5">
           Step 2: Playlist Selection
         </Typography>
@@ -456,8 +490,7 @@ const PlaylistSelection = ({ next, skip, setPlaylist, settings }: PlaylistSelect
     </Box>
   }
 
-  return <Box className="w-full h-full mb-32">
-    <Snackbar />
+  return <Box className="w-full">
     <NewPlaylistModal open={openModal} setOpen={setOpenModal} notify={notify} forceReload={setForceReload} />
     <Typography
       className="px-4 pt-4"
@@ -489,16 +522,70 @@ const PlaylistSelection = ({ next, skip, setPlaylist, settings }: PlaylistSelect
   </Box>
 }
 
-const SpotifyCheck = ({ next }: Props) => {
-  return <Box>
-    <Button onClick={next}>Connect to TV</Button>
+type SpotifyCheckProps = Props & {
+  code: string
+}
+
+const SpotifyCheck = ({ next, code, notify }: SpotifyCheckProps) => {
+  const BASE_URL = process.env.REACT_APP_BASE_URL ?? 'http://localhost:3000'  
+  const redirectBack= BASE_URL + '/#/auth/sessionCreation?step=3'
+
+  useEffect(() => {
+    if (code === '') return
+
+    fetchSpotifyToken(code, redirectBack, redirectBack, notify)
+  }, [code])
+
+  useEffect(() => {
+    window.sipapu.Spotify.get()
+      .then(s => {
+        if (s) {
+          next()
+        }
+      })
+  })
+
+
+  const login = () => window.location.href = createSpotifyLink(redirectBack)
+
+  return <Box className="p-4 h-full w-full mb-32">
+    <Typography
+      variant="h5">
+      Step 3: Linking Spotify
+    </Typography>
+
+    <Typography
+      variant="body1"
+      className="pb-2">
+      You have enabled Spotify in the session settings, but are not logged in! Press the button below to log into Spotify, this requires you to have a Spotify Premium account.
+    </Typography>
+    <Button onClick={login}>Login to Spotify</Button>
   </Box>
 }
 
-const ConnectToTv = (props: Props) => {
-  return <Box>
-    Connect to TV
-    <Button onClick={() => alert('Session creation finished, now redirect')}>Session</Button>
+type ConnectToTvProps = Props & {
+  setCode: (code: string) => void
+}
+
+const ConnectToTv = ({ notify, setCode }: ConnectToTvProps) => {
+  
+  return <Box className="h-full p-4">
+    <Box>
+      <Typography
+        variant="h5">
+        Step 4: Connect to TV
+      </Typography>
+
+      <Typography
+        variant="body1">
+        Now go on your TV to {process.env.REACT_APP_KOKOPELLI_URL} and fill in the code you see there.
+      </Typography>
+        
+      <Kokopelli className="w-full center" />
+
+      <OTP setCode={setCode} />
+      <Button onClick={() => alert('Session creation finished, now redirect')}>Session</Button>
+    </Box>
   </Box>
 }
 
