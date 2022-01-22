@@ -45,6 +45,8 @@ const AuthRouter = () => {
   const handleChange = (_event: unknown, newPage: string) => {
     setShadow(3)
     setPage(newPage)
+    
+    document.getElementById('main-div')?.scrollTo(0,0)
   }
 
   const clickOnProfile = () => {
@@ -77,7 +79,7 @@ const AuthRouter = () => {
       </AppBar>
     </Paper>
 
-    <div className="h-full overflow-scroll" style={{ marginTop: '64px' }}>
+    <div className="h-full overflow-scroll" id="main-div" style={{ marginTop: '64px' }}>
       <Routes>
         <Route path="/auth/playlists" element={pages.playlists} />
         <Route path="/auth/session" element={pages.session} />
