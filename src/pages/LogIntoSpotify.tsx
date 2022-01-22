@@ -5,6 +5,44 @@ import { useNotification } from '../components/Snackbar'
 
 type LogIntoSpotifyProps = {
   redirectBack: string
+  redirectUri?: string
+}
+
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export const fetchSpotifyToken = (code: string, redirectUri: string, redirectBack: string, notify: any) => {
+  fetch(process.env.REACT_APP_SPOTIFY_AUTH, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      code,
+      redirect_uri: redirectUri
+    })
+  }).then(res => res.json())
+    .then(data => {
+      if (!data) return notify({ title: 'Error', message: 'Spotify authentication failed, please try again.', severity: 'error' })
+
+      window.sipapu.Spotify.create({
+        accessToken: data.access_token,
+        refreshToken: data.refresh_token,
+        expiresAt: new Date(new Date().getTime() + data.expires_in)
+      }).then(() => {
+        // Redirect back to original location after successful login
+        window.location.href = redirectBack
+      }).catch(err => {
+        notify({ title: 'Error', message: err.message, severity: 'error' })
+      })
+    })
+    .catch(err => {
+      console.error(err)
+      notify({ title: 'Error', message: err.message, severity: 'error' })
+    })
+}
+
+export const createSpotifyLink = (redirectUri: string) => {
+  return `https://accounts.spotify.com/authorize?client_id=${process.env.REACT_APP_SPOTIFY_CLIENT_ID}&response_type=code&redirect_uri=${encodeURIComponent(redirectUri)}&scope=user-read-private%20streaming%20user-read-email`
 }
 
 const LogIntoSpotify = (props: LogIntoSpotifyProps) => {
@@ -12,7 +50,8 @@ const LogIntoSpotify = (props: LogIntoSpotifyProps) => {
 
   const [code, setCode] = useState<string>('')
 
-  const redirectUri = 'http://localhost:3000/#/auth/login/spotify'
+  const BASE_URL = process.env.REACT_APP_BASE_URL ?? 'http://localhost:3000'
+  const redirectUri = BASE_URL + '/#/auth/login/spotify?redirect=' + props.redirectBack
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search)
@@ -26,43 +65,11 @@ const LogIntoSpotify = (props: LogIntoSpotifyProps) => {
   useEffect(() => {
     if (code === '') return
 
-    fetch(process.env.REACT_APP_SPOTIFY_AUTH, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        code,
-        redirect_uri: redirectUri
-      })
-    }).then(res => res.json())
-      .then(data => {
-        if (!data) return notify({ title: 'Error', message: 'Spotify authentication failed, please try again.', severity: 'error' })
-
-        window.sipapu.Spotify.create({
-          accessToken: data.access_token,
-          refreshToken: data.refresh_token,
-          expiresAt: new Date(new Date().getTime() + data.expires_in)
-        }).then(() => {
-          // Redirect back to original location after successful login
-          window.location.href = props.redirectBack
-        }).catch(err => {
-          notify({ title: 'Error', message: err.message, severity: 'error' })
-        })
-      })
-      .catch(err => {
-        console.error(err)
-        notify({ title: 'Error', message: err.message, severity: 'error' })
-      })
+    fetchSpotifyToken(code, redirectUri, props.redirectBack, notify)
   }, [code])
 
-
-  const createSpotifyLink = () => {
-    return `https://accounts.spotify.com/authorize?client_id=${process.env.REACT_APP_SPOTIFY_CLIENT_ID}&response_type=code&redirect_uri=${encodeURIComponent(redirectUri)}&scope=user-read-private%20streaming%20user-read-email`
-  }
-
   const redirectToSpotify = () => {
-    window.location.href = createSpotifyLink()
+    window.location.href = createSpotifyLink(redirectUri)
   }
 
   if (code) {
