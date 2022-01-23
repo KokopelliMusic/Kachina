@@ -6,27 +6,19 @@ import SettingsIcon from '@mui/icons-material/Settings'
 import LibraryMusicIcon from '@mui/icons-material/LibraryMusic'
 import AccountCircleIcon from '@mui/icons-material/AccountCircle'
 import { Box } from '@mui/system'
-import { Link, Route, Routes } from 'react-router-dom'
-import NotFound from '../pages/NotFound'
-import Session from '../pages/session/Session'
-import Settings from '../pages/session/Settings'
-import Add from '../pages/session/Add'
-import Profile from '../pages/Profile'
+import { Link } from 'react-router-dom'
 import useRedirect from '../components/Redirect'
 
-const pages = {
-  playlist: <p>TODO: Playlist view</p>,
-  session: <Session />,
-  add: <Add />,
-  settings: <Settings />,
-  profile: <Profile />,
-  notFound: <NotFound to="/session/session" />
+type SessionRouterProps = {
+  element: React.ReactNode
+  elevation?: number
+  pageName: string
 }
 
 /**
  * Base page component for when the user is authenticated. 
  */
-const SessionRouter = () => {
+const SessionRouter = ({ element, elevation, pageName }: SessionRouterProps) => {
   const redirect = useRedirect()
 
   const [page, setPage] = React.useState('playlists')
@@ -42,6 +34,7 @@ const SessionRouter = () => {
     <Paper elevation={3}>
       <AppBar 
         position="fixed"
+        elevation={elevation ?? 3}
       >
         <Toolbar style={{ height: '64px' }}>
           <img src="/kokopelli-white.png" alt="Kokopelli" style={{ height: '70%', objectFit: 'contain' }}/>
@@ -62,20 +55,12 @@ const SessionRouter = () => {
     </Paper>
 
     <div className="h-full overflow-scroll" style={{ marginTop: '64px' }}>
-      <Routes>
-        <Route path="session/playlist" element={pages.playlist} />
-        <Route path="session/session" element={pages.session} />
-        <Route path="session/add" element={pages.add} />
-        <Route path="session/profile" element={pages.profile} />
-        <Route path="session/settings" element={pages.settings} />
-        <Route path="session/*" element={pages.notFound} />
-      </Routes>
+      {element}
     </div>
 
     <Paper elevation={3}>
       <BottomNavigation
-        value={page}
-        onChange={handleChange} 
+        value={pageName}
         className="fixed bottom-0 left-0 right-0"
       >
         <BottomNavigationAction 
