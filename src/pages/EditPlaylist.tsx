@@ -194,7 +194,7 @@ const SongDetailModal = ({ open, setOpen, song, notify }: SongDetailModalType) =
     <DialogContent>
       <img src={song.cover ?? '/missing.jpg'} alt={song.title} className="w-full h-full" width={36} height={36} />
       {song.songType === 'youtube' ? null :
-        <div className="pt-2">        
+        <Box className="pt-2">        
           <DialogContentText>
             Performed by: {song.artist ?? ''}
           </DialogContentText>
@@ -202,12 +202,15 @@ const SongDetailModal = ({ open, setOpen, song, notify }: SongDetailModalType) =
           <DialogContentText>
             On: {song.album ?? 'YouTube'}
           </DialogContentText>
-        </div>
+        </Box>
 
       }
 
       <DialogContentText>
         Added by: {!user ? '...' : user.username}
+      </DialogContentText>
+      <DialogContentText>
+        on: {new Date(song.createdAt).toLocaleString()}
       </DialogContentText>
 
     </DialogContent>
