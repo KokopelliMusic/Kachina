@@ -1,16 +1,37 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import { Button, Typography } from '@mui/material'
 import { Box } from '@mui/system'
 import useRedirect from '../../components/Redirect'
 import { useParams } from 'react-router'
+import { getSessionCode } from '../../data/session'
 
-const Add = () => {
+type AddProps = {
+  session?: boolean
+}
+
+const Add = ({ session }: AddProps) => {
   const redirect = useRedirect()
   const params   = useParams()
+
+  const [id, setId] = useState<number>(-1)
   
-  // This is again safe since we are only sent here from EditPlaylist which already checks this
-  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-  const id = params.id!
+  useEffect(() => {
+    if (session) {
+      const code = getSessionCode()
+      if (code) {
+        window.sipapu.Session.get(code)
+          .then(session => {
+            if (session) {
+              setId(session.playlistId)
+            }
+          })
+      }
+    } else {
+      // React router gives this guarantee
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      setId(parseInt(params.id!))
+    }
+  })
 
   return <Box className="h-4/6 flex items-center">
     <div>
