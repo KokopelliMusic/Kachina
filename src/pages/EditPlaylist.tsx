@@ -9,33 +9,60 @@ import { SongType } from 'sipapu/dist/src/services/song'
 import useRedirect from '../components/Redirect'
 import { ProfileType } from 'sipapu/dist/src/services/profile'
 import { purple } from '@mui/material/colors'
+import { getSessionCode } from '../data/session'
 
-const EditPlaylist = () => {
+type EditPlaylistProps = {
+  session?: boolean
+}
+
+const EditPlaylist = ({ session }: EditPlaylistProps) => {
   const params              = useParams()
   const redirect            = useRedirect()
   const [notify, Snackbar]  = useNotification()
 
-  const [loading, setLoading]   = useState<boolean>(true)
-  const [playlist, setPlaylist] = useState<PlaylistWithSongsType | undefined>(undefined)
-  const [users, setUsers]       = useState<ProfileType[] | undefined>(undefined)
-  const [user, setUser]         = useState<ProfileType | undefined>(undefined)
+  const [preload, setPreload]         = useState<boolean>(true)
+  const [loading, setLoading]         = useState<boolean>(true)
+  const [playlistId, setPlaylistId]  = useState<number>(-1)
+  const [playlist, setPlaylist]       = useState<PlaylistWithSongsType | undefined>(undefined)
+  const [users, setUsers]             = useState<ProfileType[] | undefined>(undefined)
+  const [user, setUser]               = useState<ProfileType | undefined>(undefined)
   
   // Modal state
   const [modalOpen, setModalOpen]       = useState(false)
   const [selectedSong, setSelectedSong] = useState<SongType | undefined>(undefined)
   
   useEffect(() => {
-    if (!params.id) {
-      notify({ title: 'Playlist ID unknown', message: 'Cannot find anything about this playlist', severity: 'error' })
-      return
+    // A lot of ifs in this code but they should all be true
+    if (session) {
+      const code = getSessionCode()
+      if (code) {
+        window.sipapu.Session.get(code)
+          .then(session => {
+            console.log(session)
+            if (session) {
+              setPlaylistId(session.playlistId)
+              setPreload(false)
+            }
+          })
+      }
+    } else {
+      // React router gives this guarantee
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      setPlaylistId(parseInt(params.id!))
+      setPreload(false)
     }
+  }, [])
+
+  useEffect(() => {
+    if (preload) return
+
     window.sipapu.Profile.getCurrent()
       .then(setUser)
       .catch(err => {
         notify({ title: 'Error', message: err.message, severity: 'error' })
       })
 
-    window.sipapu.Playlist.getWithSongs(parseInt(params.id))
+    window.sipapu.Playlist.getWithSongs(playlistId)
       .then(async playlist => {
         await window.sipapu.Playlist.getUsers(playlist.id)
           .then(setUsers)
@@ -49,7 +76,7 @@ const EditPlaylist = () => {
       .catch(err => {
         notify({ title: 'Error', message: err.message, severity: 'error' })
       })
-  }, [])
+  }, [preload])
 
   useEffect(() => {
     if (!selectedSong) return
@@ -60,7 +87,7 @@ const EditPlaylist = () => {
 
   // This is safe to do since we already check it in useEffect, that is before render so its safe
   // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-  const clickAdd = () => redirect('/add/' + parseInt(params.id!))
+  const clickAdd = () => redirect('/add/' + playlistId)
 
   const loadingSong = <Box className="w-full flex" height={88}>
     <div className="pl-4 w-20 center">
