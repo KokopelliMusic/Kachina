@@ -1,8 +1,8 @@
 
 export const saveSessionCode = (code: string) => {
-  localStorage.setItem('sessionCode', code)
+  localStorage.setItem('kokopelli:sessionCode', code)
 }
 
 export const getSessionCode = () => {
-  return localStorage.getItem('sessionCode')
+  return localStorage.getItem('kokopelli:sessionCode')
 }
