@@ -6,6 +6,7 @@ import { Sipapu } from 'sipapu'
 import { Session } from '@supabase/gotrue-js'
 import { purple } from '@mui/material/colors'
 import { createTheme, ThemeProvider } from '@mui/material'
+import { getSessionCode } from './data/session'
 
 window.sipapu = new Sipapu('kachina', process.env.REACT_APP_SUPABASE_URL, process.env.REACT_APP_SUPABASE_KEY, process.env.REACT_APP_TAWA_URL)
 const Context = React.createContext<Session | null>(null)
@@ -15,6 +16,12 @@ const Index = () => {
 
   useEffect(() => {
     setSession(window.sipapu.client.auth.session())
+
+    const code = getSessionCode()
+
+    if (code) {
+      window.sipapu.Session.setSessionId(code)
+    }
 
     window.sipapu.client.auth.onAuthStateChange((_event, session) => setSession(session))
   }, [])
