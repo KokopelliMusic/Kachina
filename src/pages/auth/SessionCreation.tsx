@@ -567,7 +567,7 @@ type ConnectToTvProps = Props & {
   setCode: (code: string) => void
 }
 
-const ConnectToTv = ({ notify, setCode }: ConnectToTvProps) => {
+const ConnectToTv = ({ setCode }: ConnectToTvProps) => {
   
   return <Box className="h-full p-4">
     <Box>
@@ -578,13 +578,22 @@ const ConnectToTv = ({ notify, setCode }: ConnectToTvProps) => {
 
       <Typography
         variant="body1">
-        Now go on your TV to {process.env.REACT_APP_KOKOPELLI_URL} and fill in the code you see there.
+        Now navigate on your TV to
+      </Typography>
+      <Typography
+        className="text-center"
+        variant="h6">
+        {process.env.REACT_APP_KOKOPELLI_URL}
+      </Typography>
+      <Typography
+        className="text-right"
+        variant="body1">
+        and fill in the code you see there.
       </Typography>
         
       <Kokopelli className="w-full center" />
 
       <OTP setCode={setCode} />
-      <Button onClick={() => alert('Session creation finished, now redirect')}>Session</Button>
     </Box>
   </Box>
 }
