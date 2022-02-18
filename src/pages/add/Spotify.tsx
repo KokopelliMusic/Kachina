@@ -68,14 +68,15 @@ const Spotify = () => {
   }, [value])
 
   useEffect(() => {
+    alert('forceReload effect')
     if (forceReload) {
       setForceReload(false)
+      alert('forceReload true')
       window.location.reload()
     }
   }, [forceReload])
 
   useEffect(() => {
-    console.log(selectedResult)
     if (selectedResult.id) {
       setOpenModal(true)
     }
@@ -102,7 +103,7 @@ const Spotify = () => {
       <Typography
         className="text-center pt-4 px-2"
         variant='h6'>
-        To add an Spotify song to this playlist, search for using the search bar above.
+        To add an Spotify song to this playlist, search for it using the search bar above.
       </Typography>
 
       <Typography
@@ -138,7 +139,7 @@ const Spotify = () => {
 
     <div className="pb-2">
       <List>
-        {queryResult.body.tracks.items.map((res: any) => <SearchResult key={res.id} queryResult={res} setSelectedResult={setSelectedResult} />)}
+        {queryResult.body.tracks.items.map((res: any, idx: number) => <SearchResult key={res.id + idx} queryResult={res} setSelectedResult={setSelectedResult} />)}
       </List>
     </div>
 
