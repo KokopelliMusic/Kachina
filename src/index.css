@@ -12,3 +12,19 @@ body {
     justify-content: center;
     align-items: center;    
 }
+
+.bg-primary {
+    background-color: #9c27b0;
+}
+
+.bg-primary-light {
+    background-color: #af52bf;
+}
+
+.bg-primary-xlight {
+    background-color: #d685e4;
+}
+
+.bg-primary-dark {
+    background-color: #6d1b7b;
+}
