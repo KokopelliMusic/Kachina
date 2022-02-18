@@ -22,7 +22,7 @@ const EditPlaylist = ({ session }: EditPlaylistProps) => {
 
   const [preload, setPreload]         = useState<boolean>(true)
   const [loading, setLoading]         = useState<boolean>(true)
-  const [playlistId, setPlaylistId]  = useState<number>(-1)
+  const [playlistId, setPlaylistId]   = useState<number>(-1)
   const [playlist, setPlaylist]       = useState<PlaylistWithSongsType | undefined>(undefined)
   const [users, setUsers]             = useState<ProfileType[] | undefined>(undefined)
   const [user, setUser]               = useState<ProfileType | undefined>(undefined)
@@ -185,7 +185,7 @@ const SongItem = ({ song, selectSong, openModal }: SongItemProps) => {
   }}>
     <ListItem sx={{ height: 72 }}>
       <ListItemAvatar>
-        <Avatar variant="square" alt={song.title} src={cover} />
+        <Avatar variant="square" alt={song.title} src={cover} imgProps={{ loading: 'lazy' }}/>
       </ListItemAvatar>
 
       <ListItemText primary={song.title} secondary={artist} primaryTypographyProps={{ noWrap: true }} />
