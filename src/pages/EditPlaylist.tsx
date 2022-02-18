@@ -87,7 +87,13 @@ const EditPlaylist = ({ session }: EditPlaylistProps) => {
 
   // This is safe to do since we already check it in useEffect, that is before render so its safe
   // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-  const clickAdd = () => redirect('/add/' + playlistId)
+  const clickAdd = () => {
+    if (session) {
+      redirect('/add')
+    } else {
+      redirect('/add/' + playlistId)
+    }
+  } 
 
   const loadingSong = <Box className="w-full flex" height={88}>
     <div className="pl-4 w-20 center">
