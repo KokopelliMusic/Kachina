@@ -11,8 +11,8 @@ import { useDebounce } from 'use-debounce'
 import { SongEnum } from 'sipapu/dist/src/services/song'
 import { ProfileType } from 'sipapu/dist/src/services/profile'
 
-const TIME_BETWEEN_QUERIES = 500
-const INPUT_FETCH_TIME     = 500
+const TIME_BETWEEN_QUERIES = 200
+const INPUT_FETCH_TIME     = 200
 
 // TODO:
 // The first query is fast but after that the
@@ -68,10 +68,8 @@ const Spotify = () => {
   }, [value])
 
   useEffect(() => {
-    alert('forceReload effect')
     if (forceReload) {
       setForceReload(false)
-      alert('forceReload true')
       window.location.reload()
     }
   }, [forceReload])
