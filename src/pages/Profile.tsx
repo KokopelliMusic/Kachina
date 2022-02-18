@@ -140,49 +140,53 @@ const Profile = ({ canLoginToSpotify }: ProfileProps) => {
       <div className="pb-8" />
     </Box>
 
-    <Box className="w-full pt-4">
-      <Typography
-        variant="h6"
-        className="pl-4 pb-2">
-        Settings
-      </Typography>
-      <Box className="flex justify-center items-center space-x-4">
-        <TextField
-          label="New username"
-          value={username}
-          onChange={e => setUsername(e.target.value)}/>
+    <Box className="h-auto">
+      <Box className="w-full pt-4">
+        <Typography
+          variant="h6"
+          className="pl-4 pb-2">
+          Settings
+        </Typography>
+        <Box className="flex justify-center items-center space-x-4">
+          <TextField
+            label="New username"
+            value={username}
+            onChange={e => setUsername(e.target.value)}/>
 
-        <Button 
-          className="ml-2"
-          variant="contained" 
-          onClick={changeUsername}>Save</Button>
+          <Button 
+            className="ml-2"
+            variant="contained" 
+            onClick={changeUsername}>Save</Button>
+        </Box>
+
+        <Box className="w-full center pt-2">
+          <Button onClick={() => notify({ title: 'Not supported', message: 'Changing your profile picture is not supported yet!', severity: 'info'})}>
+            Change profile picture
+          </Button>
+        </Box>
       </Box>
 
-      <Box className="w-full center pt-2">
-        <Button onClick={() => notify({ title: 'Not supported', message: 'Changing your profile picture is not supported yet!', severity: 'info'})}>
-          Change profile picture
+      <Box className="w-full center pt-4"><Divider className="w-11/12" /></Box>
+
+      <Box>
+        <Typography
+          variant="h6"
+          className="pl-4 pb-2 pt-2">
+          Spotify
+        </Typography>
+
+      </Box>
+      {canLoginToSpotify === false ? spotifyElementSession : spotifyElement}
+
+      <Box className="w-full center pt-4"><Divider className="w-11/12" /></Box>
+
+      <Box className="w-full center pt-4">
+        <Button onClick={() => window.sipapu.signOut()}>
+          Sign Out
         </Button>
       </Box>
-    </Box>
 
-    <Box className="w-full center pt-4"><Divider className="w-11/12" /></Box>
-
-    <Box>
-      <Typography
-        variant="h6"
-        className="pl-4 pb-2 pt-2">
-        Spotify
-      </Typography>
-
-    </Box>
-    {canLoginToSpotify === false ? spotifyElementSession : spotifyElement}
-
-    <Box className="w-full center pt-4"><Divider className="w-11/12" /></Box>
-
-    <Box className="w-full center pt-4">
-      <Button onClick={() => window.sipapu.signOut()}>
-        Sign Out
-      </Button>
+      <Box className="pt-32" />
     </Box>
   </Box>
 }
