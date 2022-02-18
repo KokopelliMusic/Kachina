@@ -1,4 +1,3 @@
-import { Button, LinearProgress, Typography } from '@mui/material'
 import { Box } from '@mui/system'
 import React, { useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
@@ -8,9 +7,13 @@ import { getSessionCode } from '../../data/session'
 import SkipNextIcon from '@mui/icons-material/SkipNext'
 import SkipPreviousIcon from '@mui/icons-material/SkipPrevious'
 import PauseCircleIcon from '@mui/icons-material/PauseCircle'
+import HistoryIcon from '@mui/icons-material/History'
+import QueueMusicIcon from '@mui/icons-material/QueueMusic'
 import useRedirect from '../../components/Redirect'
 import { EventTypes, NextSongEventData } from 'sipapu/dist/src/events'
-import { SongType } from 'sipapu/dist/src/services/song'
+import { SongEnum, SongType } from 'sipapu/dist/src/services/song'
+import { Button, Typography } from '@mui/material'
+import PlayerProgressionBar from '../../components/PlayerProgressionBar'
 
 const Session = () => {
   const [notify, Snackbar] = useNotification()
@@ -37,6 +40,21 @@ const Session = () => {
         const data = event.data as NextSongEventData
         setSong(data.song)
       }
+    })
+
+    // TODO
+    setSong({
+      id: 1,
+      title: 'Hallowed Be Thy Name - 2015 Remaster',
+      artist: 'Iron Maiden',
+      cover: 'https://i.scdn.co/image/ab67616d0000b2735c29a88ba5341ca428f0c322',
+      addedBy: 'Niels',
+      createdAt: new Date(),
+      playCount: 0,
+      queryResult: {},
+      songType: SongEnum.SPOTIFY,
+      platformId: '',
+      playlistId: 29,
     })
 
     setCode(code)
@@ -67,33 +85,47 @@ const Session = () => {
     window.sipapu.Session.notifyEvent(code, EventTypes.PREVIOUS_SONG, {})
   }
 
-  const history = () => {
-    redirect('/history')
-  }
+  const history = () => redirect('/history')
+  const queue = () => redirect('/queue')
 
-  const queue = () => {
-    redirect('/queue')
-  }
-
-  return <Box className="p-4">
+  return <Box className="h-screen overflow-scroll">
     <Snackbar />
-    <Box className="grid grid-rows-6" sx={{ height: '90vh' }}>
-      <Typography
-        className="w-full text-center"
-        variant="h4">
-        Current Session
-      </Typography>
+    <Box className="grid grid-rows-9 h-full pb-32">
 
-      <Box className="row-span-4">
-        <img 
-          src="/missing.jpg" 
-          alt="Cover" 
-          className="px-4" />
+      {/* Queue and History buttons */}
+      <Box className="w-full flex justify-between py-2 px-4 row-span-1">
+        <Button onClick={history}> <HistoryIcon    sx={{ fontSize: 35 }} /> </Button>
+        <Button onClick={queue}>   <QueueMusicIcon sx={{ fontSize: 35 }} /> </Button>
+      </Box>
 
-        <Box className="w-full center pt-6 pb-4">
-          <LinearProgress className="w-5/6" variant="determinate" value={progress}/>
+      {/* Album cover */}
+      <Box className="px-8 row-span-2">
+        <img src={song?.cover ?? '/missing.jpg'} />    
+      </Box>
+
+      <Box className="px-8 pt-6 w-screen h-full row-span-3">
+        {/* Song information */}
+        <Box>
+          <Typography
+            noWrap
+            variant="h5">
+            {song?.title ?? ''}
+          </Typography>
+
+          <Typography
+            noWrap
+            variant="body1">
+            {song?.artist ?? ''}
+          </Typography>
+
         </Box>
 
+        {/* Progress bar */}
+        <Box className="pt-2">
+          <PlayerProgressionBar timeLeft={40} />
+        </Box>
+
+        {/* Player buttons */}
         <Box className="w-full center">
           <Box>
             <Button onClick={previous}>  <SkipPreviousIcon sx={{ fontSize: 40 }}/></Button>
@@ -101,16 +133,6 @@ const Session = () => {
             <Button onClick={skip}>      <SkipNextIcon     sx={{ fontSize: 40 }}/></Button>
           </Box>
         </Box>
-      </Box>
-
-      <Box className="flex justify-evenly items-center mb-32 row-span-1">
-        <Button variant="contained" onClick={history}>
-          History
-        </Button>
-
-        <Button variant="contained" onClick={queue}>
-          Queue
-        </Button>
       </Box>
 
     </Box>
