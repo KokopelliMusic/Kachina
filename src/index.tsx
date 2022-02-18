@@ -24,10 +24,8 @@ const Index = () => {
       window.sipapu.Session.setSessionId(code)
     }
 
-    if (getSessionCode()) {
+    if (getSessionCode() && path === '/#/') {
       window.location.href = '/#/session/session'
-    } else if (path === '' || path === '/') {
-      window.location.href = '/#/auth/playlists'
     }
 
     window.sipapu.client.auth.onAuthStateChange((_event, session) => {
