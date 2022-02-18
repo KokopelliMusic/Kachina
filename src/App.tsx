@@ -14,8 +14,10 @@ import Session from './pages/session/Session'
 import SessionRouter from './routers/SessionRouter'
 import Add from './pages/add/Add'
 import YouTube from './pages/add/YouTube'
-import Settings from './pages/session/Settings'
 import Help from './pages/auth/Help'
+import Queue from './pages/session/Queue'
+import HistoryElement from './pages/session/History'
+import Settings from './pages/Settings'
 
 export const authPages = {
   playlists:        <AuthRouter element={<Playlists />} pageName="playlists" />,
@@ -38,18 +40,24 @@ export const sessionPages = {
   spotify:  <SessionRouter element={<Spotify />} pageName="spotify" />,
   youtube:  <SessionRouter element={<YouTube />} pageName="youtube" />,
   settings: <SessionRouter element={<Settings />} pageName="settings" />,
-  profile:  <SessionRouter element={<Profile />} pageName="profile" elevation={0} />,
+  profile:  <SessionRouter element={<Profile canLoginToSpotify={false} />} pageName="profile" elevation={0} />,
   notFound: <SessionRouter element={<NotFound to="/session/session" />} pageName="notFound" />,
+  queue:    <SessionRouter element={<Queue />} pageName="queue" />,
+  history:  <SessionRouter element={<HistoryElement />} pageName="history" />,
 }
 
 
 function App() {
   const params = new URLSearchParams(window.location.search)
-  
+
+  if (params.get('code')) {
+    const hash = decodeURIComponent(window.location.hash)
+    window.location.hash = hash
+  }
+
   useEffect(() => {
-    if (params.get('code')) {
-      window.location.hash = decodeURIComponent(window.location.hash)
-    }
+    // Always scroll to the top!
+    document.getElementById('main-div')?.scrollTo(0,0)
   }, [])
 
   return <HashRouter>
@@ -58,11 +66,13 @@ function App() {
         <Route path="/session/">
           <Route path="playlist" element={sessionPages.playlist} />
           <Route path="session" element={sessionPages.session} />
-          <Route path="add" element={sessionPages.add} />
-          <Route path="spotify/:id" element={sessionPages.spotify} />
-          <Route path="youtube/:id" element={sessionPages.youtube} />
-          <Route path="profile" element={sessionPages.profile} />
           <Route path="settings" element={sessionPages.settings} />
+          <Route path="add" element={sessionPages.add} />
+          <Route path="queue" element={sessionPages.queue} />
+          <Route path="history" element={sessionPages.history} />
+          <Route path="add/spotify/:id" element={sessionPages.spotify} />
+          <Route path="add/youtube/:id" element={sessionPages.youtube} />
+          <Route path="profile" element={sessionPages.profile} />
           <Route path="*" element={sessionPages.notFound} />
         </Route>
         <Route path="/auth/">
@@ -71,8 +81,8 @@ function App() {
           <Route path="profile" element={authPages.profile} />
           <Route path="edit/:id" element={authPages.edit} />
           <Route path="add/:id" element={authPages.add} />
-          <Route path="spotify/:id" element={authPages.spotify} />
-          <Route path="youtube/:id" element={authPages.youtube} />
+          <Route path="add/spotify/:id" element={authPages.spotify} />
+          <Route path="add/youtube/:id" element={authPages.youtube} />
           <Route path="sessionCreation" element={authPages.sessionCreation} />
           <Route path="login/spotify" element={authPages.logIntoSpotify} />
           <Route path="help" element={authPages.help} />

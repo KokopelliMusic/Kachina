@@ -17,13 +17,22 @@ const Index = () => {
   useEffect(() => {
     setSession(window.sipapu.client.auth.session())
 
+    const path = window.location.pathname
     const code = getSessionCode()
-
+    
     if (code) {
       window.sipapu.Session.setSessionId(code)
     }
 
-    window.sipapu.client.auth.onAuthStateChange((_event, session) => setSession(session))
+    if (getSessionCode()) {
+      window.location.href = '/#/session/session'
+    } else if (path === '' || path === '/') {
+      window.location.href = '/#/auth/playlists'
+    }
+
+    window.sipapu.client.auth.onAuthStateChange((_event, session) => {
+      setSession(session)
+    })
   }, [])
 
   return <Context.Provider value={session}>
