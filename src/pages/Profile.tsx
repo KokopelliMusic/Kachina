@@ -7,7 +7,11 @@ import { useNotification } from '../components/Snackbar'
 import { SpotifyType } from 'sipapu/dist/src/services/spotify'
 import useRedirect from '../components/Redirect'
 
-const Profile = () => {
+type ProfileProps = {
+  canLoginToSpotify?: boolean
+}
+
+const Profile = ({ canLoginToSpotify }: ProfileProps) => {
   const [notify, Snackbar] = useNotification()
   const redirect           = useRedirect()
 
@@ -57,6 +61,31 @@ const Profile = () => {
     </Box>
   }
 
+  const spotifyElementSession = spotify ? <Box>
+    <Typography
+      variant="body1"
+      className="w-full text-center">
+      You are logged into spotify!
+    </Typography>
+    
+    <Typography
+      variant="body1"
+      className="w-full text-center">
+      Last used: {new Date(new Date(spotify.expiresAt).getTime() - 60 * 60 * 1000).toLocaleString()}
+    </Typography>
+
+  </Box>
+    : <Box>
+      <Box>
+        <Typography
+          variant="body1"
+          className="px-4">
+          You are not logged in to Spotify! <br/>
+          But during a session you cannot change this, so if you want to login to Spotify, please leave your session first.
+        </Typography>
+      </Box>
+    </Box>
+
   const spotifyElement = spotify ? <Box>
     <Typography
       variant="body1"
@@ -78,14 +107,16 @@ const Profile = () => {
 
   </Box> :
     <Box className="w-full">
-      <Typography
-        variant="body1"
-        className="px-4">
-        You are not logged in to Spotify!<br/> 
-        Kokopelli uses your Spotify Premium account to play music. Login to Spotify to continue.
-      </Typography>
-      <Box className="center pt-2">
-        <Button onClick={() => redirect('/login/spotify')}>Login to Spotify</Button>
+      <Box>
+        <Typography
+          variant="body1"
+          className="px-4">
+          You are not logged in to Spotify!<br/> 
+          Kokopelli uses your Spotify Premium account to play music. Login to Spotify to continue.
+        </Typography>
+        <Box className="center pt-2">
+          <Button onClick={() => redirect('/login/spotify')}>Login to Spotify</Button>
+        </Box>
       </Box>
     </Box>
 
@@ -144,7 +175,7 @@ const Profile = () => {
       </Typography>
 
     </Box>
-    {spotifyElement}
+    {canLoginToSpotify === false ? spotifyElementSession : spotifyElement}
 
     <Box className="w-full center pt-4"><Divider className="w-11/12" /></Box>
 
