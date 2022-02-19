@@ -80,12 +80,13 @@ const Playlists = () => {
   return <Box className="w-full h-full">
     <Snackbar />
     <NewPlaylistModal open={openModal} setOpen={setOpenModal} notify={notify} forceReload={setForceReload} />
-    <main className="mb-auto flex flex-col items-center scroll mb-28">
+    <main className="mb-auto flex flex-col items-center scroll">
       <List sx={{ width: '100%' }}>
         {playlists.map(playlist => (<div key={playlist.id}>
           <PlaylistItem playlist={playlist}/>
         </div>))}
       </List>
+      <div className="mt-28" />
     </main>
 
 
