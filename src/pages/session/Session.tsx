@@ -23,11 +23,12 @@ const Session = () => {
   const redirect           = useRedirect()
   const event              = useContext(EventContext)
   
-  const [loading, setLoading]   = useState<boolean>(false)
-  const [session, setSession]   = useState<SessionType>()
-  const [song, setSong]         = useState<SongType>()
-  const [progress, setProgress] = useState<number>(77)
-  const [playing, setPlaying]   = useState<boolean>(false)
+  const [loading, setLoading]           = useState<boolean>(false)
+  const [session, setSession]           = useState<SessionType>()
+  const [song, setSong]                 = useState<SongType>()
+  const [progress, setProgress]         = useState<number>(77)
+  const [progInterval, setProgInterval] = useState<NodeJS.Timeout>()
+  const [playing, setPlaying]           = useState<boolean>(false)
 
   const skip = () => {
     window.sipapu.Session.notifyEvent(event.session, EventTypes.SKIP_SONG, {})
@@ -52,14 +53,13 @@ const Session = () => {
       setPlaying(true)
       setSong((JSON.parse(event.data as unknown as string).song) as SongType)
       break
-      
+
     case EventTypes.NEXT_SONG:
       setPlaying(true)
       setSong((JSON.parse(event.data as unknown as string).song) as SongType)
       setProgress(0)
       break
 
-    
     case EventTypes.PREVIOUS_SONG:
     case EventTypes.SONG_FINISHED:
     case EventTypes.SKIP_SONG:
@@ -80,16 +80,22 @@ const Session = () => {
   }, [event])
 
   useEffect(() => {
-    if (song?.length) {
-      const interval = setInterval(() => {
+    if (song?.length && playing) {
+      setProgInterval(setInterval(() => {
         if (song?.length) {
           setProgress(p => p + 1000)
         }
-      }, 1000)
+      }, 1000))
+    }
 
-      return () => {
-        clearInterval(interval)
-      }
+    if (!playing) {
+      // @ts-expect-error kut ts
+      clearInterval(progInterval)
+    }
+
+    return () => {
+      // @ts-expect-error kut ts
+      clearInterval(progInterval)
     }
   }, [playing])
 
