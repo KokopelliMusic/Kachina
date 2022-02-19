@@ -18,19 +18,22 @@ const Index = () => {
     setSession(window.sipapu.client.auth.session())
 
     const path = window.location.pathname
+    const hash = window.location.hash
     const code = getSessionCode()
     
     if (code) {
       window.sipapu.Session.setSessionId(code)
     }
 
-    if (getSessionCode() && path === '/#/') {
-      window.location.href = '/#/session/session'
+    if (path === '/' && hash === '') {
+      if (getSessionCode()) {
+        window.location.href = '/#/session/session'
+      } else if (window.sipapu.isLoggedIn()) {
+        window.location.href = '/#/auth/session'
+      }
     }
 
-    window.sipapu.client.auth.onAuthStateChange((_event, session) => {
-      setSession(session)
-    })
+    window.sipapu.client.auth.onAuthStateChange((_event, session) => setSession(session))
   }, [])
 
   return <Context.Provider value={session}>
