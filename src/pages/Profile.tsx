@@ -6,6 +6,7 @@ import { ProfileType } from 'sipapu/dist/src/services/profile'
 import { useNotification } from '../components/Snackbar'
 import { SpotifyType } from 'sipapu/dist/src/services/spotify'
 import useRedirect from '../components/Redirect'
+import { getSessionCode, leaveSession } from '../data/session'
 
 type ProfileProps = {
   canLoginToSpotify?: boolean
@@ -72,6 +73,12 @@ const Profile = ({ canLoginToSpotify }: ProfileProps) => {
       variant="body1"
       className="w-full text-center">
       Last used: {new Date(new Date(spotify.expiresAt).getTime() - 60 * 60 * 1000).toLocaleString()}
+    </Typography>
+
+    <Typography
+      variant="body1"
+      className="w-full px-8 text-center">
+      During a session you cannot sign out of Spotify, leave the session first!
     </Typography>
 
   </Box>
@@ -179,6 +186,33 @@ const Profile = ({ canLoginToSpotify }: ProfileProps) => {
       {canLoginToSpotify === false ? spotifyElementSession : spotifyElement}
 
       <Box className="w-full center pt-4"><Divider className="w-11/12" /></Box>
+
+      {getSessionCode() ? <Box className="w-full pt-4">
+        <Typography
+          variant="h6"
+          className="pl-4 pb-2">
+          Session
+        </Typography>
+
+        <Typography
+          variant="body1"
+          className="w-full text-center">
+          You are in a session!
+        </Typography>
+        
+        <Typography
+          variant="body1"
+          className="w-full text-center">
+          Session code: {getSessionCode()}
+        </Typography>
+
+        <Box className="w-full center pt-2">
+          <Button onClick={leaveSession}>
+            Leave session
+          </Button>
+        </Box>
+        <Box className="w-full center pt-4"><Divider className="w-11/12" /></Box>
+      </Box> : null}
 
       <Box className="w-full center pt-4">
         <Button onClick={() => window.sipapu.signOut()}>
