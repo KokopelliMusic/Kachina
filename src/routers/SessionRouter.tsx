@@ -63,6 +63,7 @@ const SessionRouter = ({ element, elevation, pageName }: SessionRouterProps) => 
   }, [])
 
   return <EventContext.Provider value={event}>
+    <Snackbar />
     <Box className="h-screen w-screen overflow-hidden">
       <Paper elevation={3}>
         <AppBar 
