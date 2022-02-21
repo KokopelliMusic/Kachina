@@ -10,6 +10,7 @@ import { PlaylistType } from 'sipapu/dist/src/services/playlist'
 import Kokopelli from '../../components/Kokopelli'
 import { createSpotifyLink, fetchSpotifyToken } from '../LogIntoSpotify'
 import OTP from '../../components/OTP'
+import { saveSessionCode } from '../../data/session'
 
 // 1. Session settings
 // 2. Playlist selection
@@ -48,6 +49,7 @@ const SessionCreation = () => {
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     window.sipapu.Session.claim(playlist!, sessionCode, settings)
       .then(() => {
+        saveSessionCode(sessionCode)
         window.location.href = '#/session/session'
       })
       .catch(err => {
@@ -258,6 +260,9 @@ const SetSessionSettings = ({ next, settings, setSettings, notify }: SetSessionS
     setModalOpen(true)
   }
 
+  // TODO
+  settings.allowEvents = false
+
   return <Box className="p-4">
     <SettingsInfoModal open={modalOpen} setOpen={setModalOpen} title={modalTitle} info={modalInfo} />
     <Typography
@@ -279,11 +284,12 @@ const SetSessionSettings = ({ next, settings, setSettings, notify }: SetSessionS
           label="Allow Spotify"
         />
         <FormControlLabel
-          control={<Switch checked={settings.allowYouTube} onChange={handleChange} name="allowYouTube" />}
+          disabled
+          control={<Switch checked={false /*settings.allowYouTube*/} onChange={handleChange} name="allowYouTube" />}
           label="Allow YouTube"
         />
         <FormControlLabel
-          disabled={!settings.allowYouTube}
+          disabled={true /*!settings.allowYouTube*/}
           control={<Switch checked={settings.youtubeOnlyAudio} onChange={handleChange} name="youtubeOnlyAudio" />}
           label="No video for YouTube"
         />
@@ -292,11 +298,13 @@ const SetSessionSettings = ({ next, settings, setSettings, notify }: SetSessionS
       <FormLabel onClick={() => openModal('controls')} color="primary">Controls <HelpOutlineIcon fontSize="small" sx={{ paddingBottom: '2px' }}/></FormLabel>
       <FormGroup className="pb-4">
         <FormControlLabel
+          disabled
           control={<Switch checked={settings.anyoneCanUsePlayerControls} onChange={handleChange} name="anyoneCanUsePlayerControls" />}
           label="Anyone can use player controls"
         />
         <FormControlLabel
-          control={<Switch checked={settings.anyoneCanAddToQueue} onChange={handleChange} name="anyoneCanAddToQueue" />}
+          disabled
+          control={<Switch checked={false /*settings.anyoneCanAddToQueue*/} onChange={handleChange} name="anyoneCanAddToQueue" />}
           label="Allow can add to queue"
         />
       </FormGroup>
@@ -308,11 +316,13 @@ const SetSessionSettings = ({ next, settings, setSettings, notify }: SetSessionS
           label="Anyone can see the contents of the playlist"
         />
         <FormControlLabel
-          control={<Switch checked={settings.anyoneCanSeeQueue} onChange={handleChange} name="anyoneCanSeeQueue" />}
+          disabled
+          control={<Switch checked={false /*settings.anyoneCanSeeQueue*/} onChange={handleChange} name="anyoneCanSeeQueue" />}
           label="Anyone can see the song queue"
         />
         <FormControlLabel
-          control={<Switch checked={settings.anyoneCanSeeHistory} onChange={handleChange} name="anyoneCanSeeHistory" />}
+          disabled
+          control={<Switch checked={false /*settings.anyoneCanSeeHistory*/} onChange={handleChange} name="anyoneCanSeeHistory" />}
           label="Anyone can see the song history"
         />
       </FormGroup>
@@ -333,6 +343,7 @@ const SetSessionSettings = ({ next, settings, setSettings, notify }: SetSessionS
     <FormLabel onClick={() => openModal('events')} color="primary">Events <HelpOutlineIcon fontSize="small" sx={{ paddingBottom: '2px' }}/></FormLabel>
     <FormGroup className="pb-4">
       <FormControlLabel
+        disabled
         control={<Switch checked={settings.allowEvents} onChange={handleChange} name="allowEvents" />}
         label="Allow Events"
       />
