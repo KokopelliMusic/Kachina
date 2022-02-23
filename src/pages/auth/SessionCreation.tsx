@@ -18,11 +18,18 @@ import { saveSessionCode } from '../../data/session'
 // 4. Connect to tv
 // 5. redirect to /session/session
 
+const TEMP_DEFAULT = {
+  ...DEFAULT_SETTINGS,
+  algorithmUsed: 'weighted-song'
+}
+
 const SessionCreation = () => {
   const [notify, Snackbar] = useNotification()
 
   const [step, setStep]               = useState<number>(0)
-  const [settings, setSettings]       = useState<SessionSettings>(DEFAULT_SETTINGS)
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore
+  const [settings, setSettings]       = useState<SessionSettings>(TEMP_DEFAULT)
   const [playlist, setPlaylist]       = useState<number>()
   const [spotifyCode, setSpotifyCode] = useState<string>('')
   const [sessionCode, setSessionCode] = useState<string>('')
@@ -333,10 +340,10 @@ const SetSessionSettings = ({ next, settings, setSettings, notify }: SetSessionS
         name="algorithmUsed"
         value={settings.algorithmUsed}
         onChange={setAlgorithm}>
-        <FormControlLabel value="modern" control={<Radio />} label="Modern" />
-        <FormControlLabel value="classic" control={<Radio />} label="Classic" />
+        <FormControlLabel disabled value="modern" control={<Radio />} label="Modern" />
+        <FormControlLabel disabled value="classic" control={<Radio />} label="Classic" />
         <FormControlLabel value="random" control={<Radio />} label="Random" />
-        <FormControlLabel value="weighted_song" control={<Radio />} label="Weighted Song" />
+        <FormControlLabel value="weighted-song" control={<Radio />} label="Weighted Song" />
       </RadioGroup>
     </FormControl>
 
