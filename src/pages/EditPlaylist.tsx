@@ -221,6 +221,15 @@ const SongDetailModal = ({ open, setOpen, song, notify }: SongDetailModalType) =
       })
   }, [])
 
+  const remove = (id: number) => {
+    window.sipapu.Song.delete(id)
+      .then(() => location.reload())
+      .catch(err => {
+        console.error(err)
+        notify({ title: 'Error', message: 'You do not have permission to remove this song!', severity: 'error' })
+      })
+  }
+
   return <Dialog open={open} onClose={() => setOpen(false)}>
     <DialogTitle>{song.title}</DialogTitle>
 
@@ -249,6 +258,7 @@ const SongDetailModal = ({ open, setOpen, song, notify }: SongDetailModalType) =
     </DialogContent>
 
     <DialogActions>
+      <Button onClick={() => remove(song.id)}>Remove</Button>
       <Button onClick={() => setOpen(false)}>Close</Button>
     </DialogActions>
   </Dialog>
