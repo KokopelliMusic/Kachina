@@ -10,6 +10,7 @@ import useRedirect from '../components/Redirect'
 import { ProfileType } from 'sipapu/dist/src/services/profile'
 import { purple } from '@mui/material/colors'
 import { getSessionCode } from '../data/session'
+import Kokopelli from '../components/Kokopelli'
 
 type EditPlaylistProps = {
   session?: boolean
@@ -26,9 +27,10 @@ const EditPlaylist = ({ session }: EditPlaylistProps) => {
   const [playlist, setPlaylist]       = useState<PlaylistWithSongsType | undefined>(undefined)
   const [users, setUsers]             = useState<ProfileType[] | undefined>(undefined)
   const [user, setUser]               = useState<ProfileType | undefined>(undefined)
+  const [canSee, setCanSee]           = useState<boolean>(true)
   
   // Modal state
-  const [modalOpen, setModalOpen]       = useState(false)
+  const [modalOpen, setModalOpen]       = useState(true)
   const [selectedSong, setSelectedSong] = useState<SongType | undefined>(undefined)
   
   useEffect(() => {
@@ -40,6 +42,9 @@ const EditPlaylist = ({ session }: EditPlaylistProps) => {
           .then(session => {
             console.log(session)
             if (session) {
+              if (!session.settings.anyoneCanSeePlaylist) {
+                setCanSee(false)
+              }
               setPlaylistId(session.playlistId)
               setPreload(false)
             }
@@ -128,6 +133,31 @@ const EditPlaylist = ({ session }: EditPlaylistProps) => {
       </main>
     </Box>
   }
+
+  if (session && !canSee) return <Box className="p-4">
+    <Snackbar />
+    <Typography
+      variant="h3"
+      className="text-center">
+      Oops!
+    </Typography>
+
+    <Typography
+      variant="h5"
+      className="text-center">
+      You are not allowed to view this playlist!
+    </Typography>
+
+    <Typography
+      variant="body1"
+      className="text-center">
+      This can be changed in the settings
+    </Typography>
+
+    <Box className="w-full center pt-4">
+      <Kokopelli />
+    </Box>
+  </Box>
 
   return <Box className="w-full h-full">
     <Snackbar />
