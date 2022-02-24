@@ -16,6 +16,7 @@ import { Button, Typography, Skeleton } from '@mui/material'
 import PlayerProgressionBar from '../../components/PlayerProgressionBar'
 import Kokopelli from '../../components/Kokopelli'
 import { EventContext } from '../../routers/SessionRouter'
+import { getSessionCode } from '../../data/session'
 
 const Session = () => {
   const [notify, Snackbar] = useNotification()
@@ -46,6 +47,16 @@ const Session = () => {
   const queue = () => redirect('/queue')
 
   useEffect(() => {
+    if (song) return
+
+    const code = getSessionCode()
+    window.sipapu.Session.getCurrentlyPlaying(code)
+      .then(id => window.sipapu.Song.get(id))
+      .then(setSong)
+      .then(() => setPlaying(true))
+  }, [])
+
+  useEffect(() => {
     // TODO pak het nummer van de cache ofzo
     switch (event.eventType) {
 
@@ -61,6 +72,9 @@ const Session = () => {
       break
 
     case EventTypes.PREVIOUS_SONG:
+      setProgress(0)
+      break
+    
     case EventTypes.SONG_FINISHED:
     case EventTypes.SKIP_SONG:
       setPlaying(false)
