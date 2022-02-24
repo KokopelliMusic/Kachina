@@ -267,7 +267,6 @@ const SetSessionSettings = ({ next, settings, setSettings, notify }: SetSessionS
   }
 
   // TODO
-  settings.allowEvents = false
   settings.allowYouTube = false
   settings.algorithmUsed = 'weighted-song'
 
@@ -351,7 +350,6 @@ const SetSessionSettings = ({ next, settings, setSettings, notify }: SetSessionS
     <FormLabel onClick={() => openModal('events')} color="primary">Events <HelpOutlineIcon fontSize="small" sx={{ paddingBottom: '2px' }}/></FormLabel>
     <FormGroup className="pb-4">
       <FormControlLabel
-        disabled
         control={<Switch checked={settings.allowEvents} onChange={handleChange} name="allowEvents" />}
         label="Allow Events"
       />
@@ -361,12 +359,14 @@ const SetSessionSettings = ({ next, settings, setSettings, notify }: SetSessionS
         label="Enable the Wheel of Fortune game"
       />
       <FormControlLabel
-        disabled={!settings.allowEvents}
+        disabled
+        // disabled={!settings.allowEvents}
         control={<Switch checked={settings.allowedEvents.includes('opus')} onChange={setAllowedEvents} name="opus" />}
         label="Enable Opus"
       />
       <FormControlLabel
-        disabled={!settings.allowEvents}
+        disabled
+        // disabled={!settings.allowEvents}
         control={<Switch checked={settings.allowedEvents.includes('random-word')} onChange={setAllowedEvents} name="random-word" />}
         label="Enable the Random Word game"
       />
