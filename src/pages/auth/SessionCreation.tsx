@@ -18,18 +18,13 @@ import { saveSessionCode } from '../../data/session'
 // 4. Connect to tv
 // 5. redirect to /session/session
 
-const TEMP_DEFAULT = {
-  ...DEFAULT_SETTINGS,
-  algorithmUsed: 'weighted-song'
-}
-
 const SessionCreation = () => {
   const [notify, Snackbar] = useNotification()
 
   const [step, setStep]               = useState<number>(0)
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-ignore
-  const [settings, setSettings]       = useState<SessionSettings>(TEMP_DEFAULT)
+  const [settings, setSettings]       = useState<SessionSettings>(DEFAULT_SETTINGS)
   const [playlist, setPlaylist]       = useState<number>()
   const [spotifyCode, setSpotifyCode] = useState<string>('')
   const [sessionCode, setSessionCode] = useState<string>('')
@@ -164,6 +159,10 @@ const SetSessionSettings = ({ next, settings, setSettings, notify }: SetSessionS
   }
 
   const nextStep = () => {
+    if (!settings.allowSpotify && !settings.allowYouTube) {
+      return notify({ title: 'Error', message: 'You must allow at least one source', severity: 'warning' })
+    }
+
     if (settings.randomWordList.length === 0) {
       // Filter out the random-word event if there are no random words
       setSettings({
@@ -269,6 +268,8 @@ const SetSessionSettings = ({ next, settings, setSettings, notify }: SetSessionS
 
   // TODO
   settings.allowEvents = false
+  settings.allowYouTube = false
+  settings.algorithmUsed = 'weighted-song'
 
   return <Box className="p-4">
     <SettingsInfoModal open={modalOpen} setOpen={setModalOpen} title={modalTitle} info={modalInfo} />
