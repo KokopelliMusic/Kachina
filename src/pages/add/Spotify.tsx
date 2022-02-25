@@ -2,12 +2,12 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, List, ListItem, ListItemAvatar, ListItemButton, ListItemText, TextField, Typography } from '@mui/material'
 import { Box } from '@mui/system'
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import useRedirect from '../../components/Redirect'
 import { useNotification } from '../../components/Snackbar'
 import Kokopelli from '../../components/Kokopelli'
-import { useDebounce } from 'use-debounce'
+// import { useDebounce } from 'use-debounce'
 import { SongEnum } from 'sipapu/dist/src/services/song'
 import { ProfileType } from 'sipapu/dist/src/services/profile'
 
@@ -20,19 +20,14 @@ const INPUT_FETCH_TIME     = 200
 
 const Spotify = () => {
   const params              = useParams()
-  const redirect            = useRedirect()
   const [notify, Snackbar]  = useNotification()
-  const inputRef            = useRef<HTMLInputElement>(null)
   
   const [query, setQuery]                   = useState('')
-  const [queryResult, setQueryResult]       = useState<any>({})
-  const [openModal, setOpenModal]           = React.useState(false)
-  const [forceReload, setForceReload]       = React.useState(false)
-  const [selectedResult, setSelectedResult] = React.useState<any>({})
-  const [profile, setProfile]               = React.useState<ProfileType>()
+  const [profile, setProfile] = useState<ProfileType>()
+
 
   // The query is debounced so that we don't make too many requests to the Spotify API
-  const [value] = useDebounce(query, TIME_BETWEEN_QUERIES)
+  // const [value] = useDebounce(query, TIME_BETWEEN_QUERIES)
 
   useEffect(() => {
     if (!params.id) {
@@ -42,17 +37,45 @@ const Spotify = () => {
     window.sipapu.Profile.getCurrent()
       .then(setProfile)
       .catch(err => notify({ title: 'Error getting profile', message: err.message, severity: 'error' }))
-
-    // Fetch the input value every 500 ms, this is to prevent lag from setState
-    // setState gives lag since when there are 20 songs, rerendering is quite expensive
-    const i = setInterval(() => {
-      if (inputRef.current && inputRef.current.value) {
-        setQuery(inputRef.current.value)
-      }
-    }, INPUT_FETCH_TIME)
-
-    return () => clearInterval(i)
   }, [])
+
+  const SearchField = <Box>
+    <div className="w-full px-4 pt-4">
+      <TextField
+        value={query}
+        onChange={(e) => setQuery(e.target.value)}
+        autoFocus
+        autoComplete="off"
+        className="w-full"
+        label="Search on Spotify"
+        variant="outlined"/>   
+    </div>
+  </Box>
+
+  return <Box>
+    <Snackbar />
+    {SearchField}
+    <SearchPage 
+      query={query}
+      notify={notify}
+      profile={profile!} />
+  </Box>
+}
+
+type SearchPageProps = {
+  query: string
+  notify: (settings: any) => void
+  profile: ProfileType
+}
+
+const SearchPage = ({ query, notify, profile }: SearchPageProps) => {
+  const params   = useParams()
+  const redirect = useRedirect()
+
+  const [queryResult, setQueryResult]       = useState<any>({})
+  const [openModal, setOpenModal]           = React.useState(false)
+  const [forceReload, setForceReload]       = React.useState(false)
+  const [selectedResult, setSelectedResult] = React.useState<any>({})
 
   useEffect(() => {
     // Do not search for anything with less than 3 letters, most of it will be crap
@@ -65,7 +88,7 @@ const Spotify = () => {
       .catch(err => {
         notify({ title: 'Error', message: err.message, severity: 'error' })
       })
-  }, [value])
+  }, [query])
 
   useEffect(() => {
     if (forceReload) {
@@ -80,24 +103,8 @@ const Spotify = () => {
     }
   }, [selectedResult])
 
-  const SearchField = () => <Box>
-    <div className="w-full px-4 pt-4">
-      <TextField
-        value={query}
-        onChange={(e) => setQuery(e.target.value)}
-        autoFocus
-        ref={inputRef}
-        className="w-full"
-        label="Search on Spotify"
-        variant="outlined"/>   
-    </div>
-  </Box>
-
-  if (!queryResult.body) 
-    return <Box>
-      <Snackbar />
-      <SearchField/>
-
+  return !queryResult.body ? 
+    <Box>
       <Typography
         className="text-center pt-4 px-2"
         variant='h6'>
@@ -119,36 +126,29 @@ const Spotify = () => {
           Back to playlist
         </Button>
       </div>
+    </Box> : <Box>
+      <AddSongModal 
+        open={openModal} 
+        setOpen={setOpenModal} 
+        notify={notify} 
+        forceReload={setForceReload} 
+        queryResult={selectedResult} 
+        playlistId={parseInt(params.id!)} 
+        profile={profile}/>
 
+      <div className="pb-2">
+        <List>
+          {queryResult.body.tracks.items.map((res: any, idx: number) => <SearchResult key={idx} queryResult={res} setSelectedResult={setSelectedResult} />)}
+        </List>
+      </div>
+
+      <Typography
+        className="text-center pb-36 px-2"
+        variant="body1">
+        Still haven&apos;t found what you&apos;re looking for? Try be more specific in your query
+      </Typography>
 
     </Box>
-
-  return <Box>
-    <Snackbar />
-    <SearchField />
-    <AddSongModal 
-      open={openModal} 
-      setOpen={setOpenModal} 
-      notify={notify} 
-      forceReload={setForceReload} 
-      queryResult={selectedResult} 
-      playlistId={parseInt(params.id!)} 
-      profile={profile}/>
-
-    <div className="pb-2">
-      <List>
-        {queryResult.body.tracks.items.map((res: any, idx: number) => <SearchResult key={res.id + idx} queryResult={res} setSelectedResult={setSelectedResult} />)}
-      </List>
-    </div>
-
-    <Typography
-      className="text-center pb-36 px-2"
-      variant="body1">
-      Still haven&apos;t found what you&apos;re looking for? Try be more specific in your query
-    </Typography>
-
-  </Box>
-
 }
 
 type SearchResultProps = {
