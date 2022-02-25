@@ -1,10 +1,16 @@
 import { CapacitorConfig } from '@capacitor/cli'
 
 const config: CapacitorConfig = {
-  appId: 'com.nierot.kokopelli.kachina',
+  appId: 'nl.kokopellimusic.kachina',
   appName: 'Kokopelli',
   webDir: 'build',
-  bundledWebRuntime: false
+  bundledWebRuntime: false,
+  plugins: {
+    SplashScreen: {
+      backgroundColor: '#EAEAEA',
+      showSpinner: true      
+    }
+  }
 }
 
 export default config
