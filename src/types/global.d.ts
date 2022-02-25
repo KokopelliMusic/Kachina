@@ -11,6 +11,8 @@ declare global {
             REACT_APP_SPOTIFY_AUTH: string;
             REACT_APP_BASE_URL: string;
             REACT_APP_KOKOPELLI_URL: string;
+            REACT_APP_LOCALHOST: string;
+            REACT_APP_LINK_URL: string;
         }
     }
 
