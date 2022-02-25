@@ -1,7 +1,12 @@
 {
-	"appId": "com.nierot.kokopelli.kachina",
+	"appId": "nl.kokopellimusic.kachina",
 	"appName": "Kokopelli",
 	"webDir": "build",
 	"bundledWebRuntime": false,
-	"linuxAndroidStudioPath": "/usr/bin/android-studio"
+	"plugins": {
+		"SplashScreen": {
+			"backgroundColor": "#EAEAEA",
+			"showSpinner": true
+		}
+	}
 }
