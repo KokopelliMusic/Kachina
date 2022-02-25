@@ -1,7 +1,7 @@
 import React, { useEffect }  from 'react'
 import AnonRouter from './routers/AnonRouter'
 import AuthRouter from './routers/AuthRouter'
-import { HashRouter, Route, Routes } from 'react-router-dom'
+import { BrowserRouter, Route, Routes } from 'react-router-dom'
 import Spotify from './pages/add/Spotify'
 import SessionCreation from './pages/auth/SessionCreation'
 import SessionSelect from './pages/auth/SessionSelect'
@@ -18,6 +18,7 @@ import Help from './pages/auth/Help'
 import Queue from './pages/session/Queue'
 import HistoryElement from './pages/session/History'
 import Settings from './pages/Settings'
+import AppUrlListener from './components/AppUrlListener'
 
 export const authPages = {
   playlists:        <AuthRouter element={<Playlists />} pageName="playlists" />,
@@ -28,7 +29,7 @@ export const authPages = {
   add:              <AuthRouter element={<Add />} pageName="add" />,
   spotify:          <AuthRouter element={<Spotify />} pageName="spotify" />,
   youtube:          <AuthRouter element={<YouTube />} pageName="youtube" />,
-  logIntoSpotify:   <AuthRouter element={<LogIntoSpotify redirectBack="/#/auth/profile" />} pageName="logIntoSpotify" />,
+  logIntoSpotify:   <AuthRouter element={<LogIntoSpotify redirectBack="/auth/profile" />} pageName="logIntoSpotify" />,
   help:             <AuthRouter element={<Help />} pageName="help" />,
   notFound:         <AuthRouter element={<NotFound to="/auth/session" />} pageName="notFound" />,
 }
@@ -48,19 +49,14 @@ export const sessionPages = {
 
 
 function App() {
-  const params = new URLSearchParams(window.location.search)
-
-  if (params.get('code')) {
-    const hash = decodeURIComponent(window.location.hash)
-    window.location.hash = hash
-  }
 
   useEffect(() => {
     // Always scroll to the top!
     document.getElementById('main-div')?.scrollTo(0,0)
   }, [])
 
-  return <HashRouter>
+  return <BrowserRouter>
+    <AppUrlListener />
     {window.sipapu.isLoggedIn() ?
       <Routes>
         <Route path="/session/">
@@ -91,7 +87,7 @@ function App() {
       </Routes> :
       <AnonRouter />
     }
-  </HashRouter>
+  </BrowserRouter>
 
 }
 

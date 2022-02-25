@@ -31,18 +31,16 @@ const SessionCreation = () => {
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search)
-    const hashParams = new URLSearchParams(window.location.hash.split('?')[1])
 
     if (params.get('code')) {
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       setSpotifyCode(params.get('code')!)
       setStep(2) // spotify step
+    } else if (params.get('step')) {
+      setStep(parseInt(params.get('step')!, 10))
     }
 
-    if (hashParams.get('step')) {
-      setStep(2) // tv step
-    }
-  }, [])
+  })
 
   useEffect(() => {
     if (!sessionCode || sessionCode.length !== 4) return
@@ -52,7 +50,7 @@ const SessionCreation = () => {
     window.sipapu.Session.claim(playlist!, sessionCode, settings)
       .then(() => {
         saveSessionCode(sessionCode)
-        window.location.href = '#/session/session'
+        window.location.href = '/session/session'
       })
       .catch(err => {
         notify({ title: 'Error', message: err.message, severity: 'error' })
@@ -546,16 +544,20 @@ type SpotifyCheckProps = Props & {
 }
 
 const SpotifyCheck = ({ next, code, notify }: SpotifyCheckProps) => {
-  const BASE_URL = process.env.REACT_APP_BASE_URL ?? 'http://localhost:3000'  
-  const redirectBack= BASE_URL + '/#/auth/sessionCreation?step=3'
+  const BASE_URL = process.env.REACT_APP_LOCALHOST == 'true' ? process.env.REACT_APP_BASE_URL : process.env.REACT_APP_LINK_URL 
+  const redirectBack = BASE_URL + '/auth/sessionCreation?step=3'
 
   useEffect(() => {
+    console.log('code', code)
+
     if (code === '') return
 
     fetchSpotifyToken(code, redirectBack, redirectBack, notify)
   }, [code])
 
   useEffect(() => {
+    console.log('code', code)
+
     window.sipapu.Spotify.get()
       .then(s => {
         if (s) {
@@ -577,6 +579,14 @@ const SpotifyCheck = ({ next, code, notify }: SpotifyCheckProps) => {
       variant="body1"
       className="pb-2">
       You have enabled Spotify in the session settings, but are not logged in! Press the button below to log into Spotify, this requires you to have a Spotify Premium account.
+    </Typography>
+
+    <Typography
+      variant="body1"
+      sx={{ color: 'red' }}
+      className="pb-2">
+      Note: this might redirect you to an empty page. If that is the case press the back button and try again. If it still does not work
+      please send an email to kokopelli@nierot.com
     </Typography>
     <Button onClick={login}>Login to Spotify</Button>
   </Box>

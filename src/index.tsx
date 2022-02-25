@@ -15,21 +15,21 @@ const Index = () => {
   const [session, setSession] = React.useState<Session | null>(null)
 
   useEffect(() => {
+
     setSession(window.sipapu.client.auth.session())
 
     const path = window.location.pathname
-    const hash = window.location.hash
     const code = getSessionCode()
     
     if (code) {
       window.sipapu.Session.setSessionId(code)
     }
 
-    if (path === '/' && hash === '') {
+    if (path === '/') {
       if (getSessionCode()) {
-        window.location.href = '/#/session/session'
+        window.location.href = '/session/session'
       } else if (window.sipapu.isLoggedIn()) {
-        window.location.href = '/#/auth/session'
+        window.location.href = '/auth/session'
       }
     }
 

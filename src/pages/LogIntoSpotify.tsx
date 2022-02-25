@@ -11,6 +11,7 @@ type LogIntoSpotifyProps = {
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const fetchSpotifyToken = (code: string, redirectUri: string, redirectBack: string, notify: any) => {
+  console.log('Fetching refresh token with code:', code)
   fetch(process.env.REACT_APP_SPOTIFY_AUTH, {
     method: 'POST',
     headers: {
@@ -50,8 +51,8 @@ const LogIntoSpotify = (props: LogIntoSpotifyProps) => {
 
   const [code, setCode] = useState<string>('')
 
-  const BASE_URL = process.env.REACT_APP_BASE_URL ?? 'http://localhost:3000'
-  const redirectUri = BASE_URL + '/#/auth/login/spotify?redirect=' + props.redirectBack
+  const BASE_URL = process.env.REACT_APP_LOCALHOST == 'true' ? process.env.REACT_APP_BASE_URL : process.env.REACT_APP_LINK_URL
+  const redirectUri = BASE_URL + '/auth/login/spotify?redirect=' + props.redirectBack
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search)
@@ -60,6 +61,12 @@ const LogIntoSpotify = (props: LogIntoSpotifyProps) => {
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       setCode(params.get('code')!)
     }
+    // } else {
+    //   const params = new URLSearchParams(window.location.href.split('?')[1])
+    //   if (params.get('code')!) {
+    //     setCode(params.get('code')!)
+    //   }
+    // }
   }, [])
 
   useEffect(() => {
