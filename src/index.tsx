@@ -7,6 +7,7 @@ import { Session } from '@supabase/gotrue-js'
 import { purple } from '@mui/material/colors'
 import { createTheme, ThemeProvider } from '@mui/material'
 import { getSessionCode } from './data/session'
+import { StatusBar } from '@capacitor/status-bar'
 
 window.sipapu = new Sipapu('kachina', process.env.REACT_APP_SUPABASE_URL, process.env.REACT_APP_SUPABASE_KEY, process.env.REACT_APP_TAWA_URL)
 const Context = React.createContext<Session | null>(null)
@@ -51,6 +52,8 @@ const theme = createTheme({
     },
   },
 })
+
+StatusBar.setBackgroundColor({ color: purple[500] })
 
 ReactDOM.render(
   <React.StrictMode>
