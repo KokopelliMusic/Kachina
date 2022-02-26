@@ -1,4 +1,4 @@
-package com.nierot.kokopelli.kachina;
+package nl.kokopellimusic.kachina;
 
 import com.getcapacitor.BridgeActivity;
 

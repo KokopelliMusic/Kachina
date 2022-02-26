@@ -1,4 +1,4 @@
-export CAPACITOR_ANDROID_STUDIO_PATH = /usr/bin/android-studio
+# export CAPACITOR_ANDROID_STUDIO_PATH = /usr/bin/android-studio
 
 lint:
 	npx eslint --ext .js,.jsx,.ts,.tsx --fix src
@@ -12,10 +12,7 @@ only-build:
 sync:
 	npx cap sync android
 
-build: test patch-version only-build sync
-
-test:
-	npx react-scripts test
+build: patch-version only-build sync
 
 patch-version:
 	npm version patch
@@ -25,3 +22,6 @@ minor-version:
 
 open: only-build sync
 	npx cap open android
+
+generate-resources:
+	npx capacitor-resources -p android
