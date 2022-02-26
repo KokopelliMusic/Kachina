@@ -45,9 +45,9 @@ const SessionCreation = () => {
   useEffect(() => {
     if (!sessionCode || sessionCode.length !== 4) return
 
-    // This is safe
-    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-    window.sipapu.Session.claim(playlist!, sessionCode, settings)
+    const playlist = Number.parseInt(localStorage.getItem('kachina:selectedPlaylist')!)
+
+    window.sipapu.Session.claim(playlist, sessionCode, settings)
       .then(() => {
         saveSessionCode(sessionCode)
         window.location.href = '/session/session'
@@ -442,6 +442,7 @@ const PlaylistSelection = ({ next, skip, setPlaylist, settings, notify }: Playli
 
   const selectPlaylist = (id: number) => {
     setPlaylist(id)
+    localStorage.setItem('kachina:selectedPlaylist', '' + id)
     if (spotify || !settings?.allowSpotify) {
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       return skip!()
