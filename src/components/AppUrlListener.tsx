@@ -1,11 +1,9 @@
 import { useNavigate } from 'react-router'
 import { App, URLOpenListenerEvent } from '@capacitor/app'
 import { useEffect } from 'react'
-import { createBrowserHistory } from 'history'
 
 const AppUrlListener = () => {
   const navigate = useNavigate()
-  const history  = createBrowserHistory()
 
   useEffect(() => {
     App.addListener('appUrlOpen', (event: URLOpenListenerEvent) => {

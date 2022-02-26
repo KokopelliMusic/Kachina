@@ -7,12 +7,9 @@ import { useParams } from 'react-router-dom'
 import useRedirect from '../../components/Redirect'
 import { useNotification } from '../../components/Snackbar'
 import Kokopelli from '../../components/Kokopelli'
-// import { useDebounce } from 'use-debounce'
 import { SongEnum } from 'sipapu/dist/src/services/song'
 import { ProfileType } from 'sipapu/dist/src/services/profile'
 
-const TIME_BETWEEN_QUERIES = 200
-const INPUT_FETCH_TIME     = 200
 
 // TODO:
 // The first query is fast but after that the
