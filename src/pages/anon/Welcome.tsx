@@ -3,6 +3,7 @@ import { Typography, Button, TextField } from '@mui/material'
 import { Box } from '@mui/system'
 import Caroussel from '../../components/Caroussel'
 import { useNavigate } from 'react-router-dom'
+import { Account } from 'appwrite'
 
 const Welcome = () => {
   const [activeStep, setActiveStep] = React.useState(0)
@@ -98,9 +99,29 @@ const SignUp = () => {
       setUsernameError('Field required')
     }
 
-    window.sipapu.signUp(email, password, username)
-      .then(() => navigate('/auth/session'))
-      .catch(err => setSignUpError(err.message))
+    const account = new Account(window.api)
+
+    account.create('unique()', email, password, username)
+      .then(() => {
+        account.createEmailSession(email, password)
+          .then(() => {
+            console.log('hoi')
+            navigate('/auth/session', { replace: true })
+          })
+          .catch(err => {
+            console.error(err)
+            setSignUpError(err.message)
+          })
+      })
+      .catch(err => {
+        console.error(err)
+        setSignUpError(err.message)
+      })
+
+
+    // window.sipapu.signUp(email, password, username)
+    //   .then(() => navigate('/auth/session'))
+    //   .catch(err => setSignUpError(err.message))
   }
 
   return <Box className="flex flex-col h-screen jusify-between">

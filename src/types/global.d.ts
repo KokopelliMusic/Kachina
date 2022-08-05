@@ -1,3 +1,4 @@
+import { Client, Databases } from 'appwrite'
 import { Sipapu } from 'sipapu'
 
 declare global {
@@ -13,11 +14,15 @@ declare global {
             REACT_APP_KOKOPELLI_URL: string;
             REACT_APP_LOCALHOST: string;
             REACT_APP_LINK_URL: string;
+            REACT_APP_APPWRITE_URL: string;
+            REACT_APP_APPWRITE_PROJECT: string;
         }
     }
 
     interface Window {
         sipapu: Sipapu;
+        api: Client;
+        db: Databases;
     }
 }
 

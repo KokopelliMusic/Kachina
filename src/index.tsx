@@ -8,8 +8,15 @@ import { purple } from '@mui/material/colors'
 import { createTheme, ThemeProvider } from '@mui/material'
 import { getSessionCode } from './data/session'
 import { StatusBar } from '@capacitor/status-bar'
+import { Client } from 'appwrite'
 
 window.sipapu = new Sipapu('kachina', process.env.REACT_APP_SUPABASE_URL, process.env.REACT_APP_SUPABASE_KEY, process.env.REACT_APP_TAWA_URL)
+window.api = new Client()
+
+window.api
+  .setEndpoint(process.env.REACT_APP_APPWRITE_URL)
+  .setProject(process.env.REACT_APP_APPWRITE_PROJECT)
+
 const Context = React.createContext<Session | null>(null)
 
 const Index = () => {
@@ -17,7 +24,7 @@ const Index = () => {
 
   useEffect(() => {
 
-    setSession(window.sipapu.client.auth.session())
+    // setSession(window.sipapu.client.auth.session())
 
     const path = window.location.pathname
     const code = getSessionCode()
@@ -34,7 +41,7 @@ const Index = () => {
       }
     }
 
-    window.sipapu.client.auth.onAuthStateChange((_event, session) => setSession(session))
+    // window.sipapu.client.auth.onAuthStateChange((_event, session) => setSession(session))
   }, [])
 
   return <Context.Provider value={session}>
