@@ -1,4 +1,5 @@
 import { Client, Databases } from 'appwrite'
+import EventEmitter from 'events'
 import { Sipapu } from 'sipapu'
 
 declare global {
@@ -16,6 +17,7 @@ declare global {
             REACT_APP_LINK_URL: string;
             REACT_APP_APPWRITE_URL: string;
             REACT_APP_APPWRITE_PROJECT: string;
+            REACT_APP_APPWRITE_REALTIME: string;
         }
     }
 
@@ -23,6 +25,7 @@ declare global {
         sipapu: Sipapu;
         api: Client;
         db: Databases;
+        accountEvents: EventEmitter
     }
 }
 
