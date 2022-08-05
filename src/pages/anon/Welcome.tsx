@@ -14,7 +14,6 @@ const Welcome = () => {
   }
 
   const checkHash = (url: string) => {
-    console.log(url)
     const spl = url.split('#')
     if (spl.length < 2) {
       return
@@ -129,8 +128,8 @@ const SignUp = () => {
     account.create('unique()', email, password, username)
       .then(() => {
         account.createEmailSession(email, password)
-          .then(() => {
-            console.log('hoi')
+          .then(session => {
+            window.accountEvents.emit('change', session)
             navigate('/auth/session', { replace: true })
           })
           .catch(err => {
@@ -236,9 +235,18 @@ const SignIn = () => {
       setPasswordError('Field required')
     }
 
-    window.sipapu.signIn(email, password)
-      .then(() => navigate('/auth/session'))
+    const account = new Account(window.api)
+
+    account.createEmailSession(email, password)
+      .then(() => {
+        navigate('/auth/session', { replace: true})
+        window.location.reload()
+      })
       .catch(err => setSignUpError(err.message))
+
+    // window.sipapu.signIn(email, password)
+    //   .then(() => navigate('/auth/session'))
+    //   .catch(err => setSignUpError(err.message))
   }
 
   return <Box className="flex flex-col h-screen jusify-between">
