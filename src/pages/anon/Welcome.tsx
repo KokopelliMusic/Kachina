@@ -1,11 +1,36 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { Typography, Button, TextField } from '@mui/material'
 import { Box } from '@mui/system'
 import Caroussel from '../../components/Caroussel'
 import { useNavigate } from 'react-router-dom'
 
 const Welcome = () => {
-  const [activeStep, setActiveStep] = React.useState(0)
+  const [activeStep, setActiveStepState] = React.useState(0)
+
+  const setActiveStep = (step: number) => {
+    window.location.hash = '' + step
+    setActiveStepState(step)
+  }
+
+  const checkHash = (url: string) => {
+    console.log(url)
+    const spl = url.split('#')
+    if (spl.length < 2) {
+      return
+    }
+    const hash = Number.parseInt(spl[1])
+
+    if (activeStep === hash) {
+      return
+    }
+
+    setActiveStep(hash)
+  }
+
+  useEffect(() => {
+    window.addEventListener('hashchange', (event) => checkHash(event.newURL), false)
+  }, [])
+
   const pages = [<Page1 setActiveStep={setActiveStep} key={0}/>, <Page2 setActiveStep={setActiveStep} key={1}/>, <SignUp key={2}/>, <SignIn key={3} />]
 
   return pages[activeStep]
