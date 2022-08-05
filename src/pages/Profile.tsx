@@ -2,11 +2,11 @@ import { Typography, Button, CircularProgress, Avatar, TextField, Divider } from
 import { purple } from '@mui/material/colors'
 import { Box } from '@mui/system'
 import React, { useEffect, useState } from 'react'
-import { ProfileType } from 'sipapu/dist/src/services/profile'
 import { useNotification } from '../components/Snackbar'
-import { SpotifyType } from 'sipapu/dist/src/services/spotify'
 import useRedirect from '../components/Redirect'
 import { getSessionCode, leaveSession } from '../data/session'
+import { Account, Models } from 'appwrite'
+import { Spotify } from 'sipapu-2'
 
 type ProfileProps = {
   canLoginToSpotify?: boolean
@@ -16,23 +16,43 @@ const Profile = ({ canLoginToSpotify }: ProfileProps) => {
   const [notify, Snackbar] = useNotification()
   const redirect           = useRedirect()
 
-  const [user, setUser]       = useState<ProfileType>()
-  const [spotify, setSpotify] = useState<SpotifyType>()
+  // const [user, setUser]       = useState<ProfileType>()
+  const [user, setUser]       = useState<Models.User<Models.Preferences>>()
+
+  const [spotify, setSpotify] = useState<Spotify>()
 
   const [username, setUsername] = useState<string>('')
 
+  const account = new Account(window.api)
+
   useEffect(() => {
-    window.sipapu.Profile.getCurrent()
+
+    account.get()
       .then(setUser)
       .catch(err => {
         notify({ title: 'Error', message: err.message, severity: 'error' })
       })
 
-    window.sipapu.Spotify.get()
-      .then(setSpotify)
+    // window.sipapu.Profile.getCurrent()
+    //   .then(setUser)
+    //   .catch(err => {
+    //     notify({ title: 'Error', message: err.message, severity: 'error' })
+    //   })
+
+    window.db.listDocuments('spotify')
+      .then(spotify => {
+        console.log(spotify)
+        setSpotify(spotify.documents[0] as unknown as Spotify)
+      })
       .catch(err => {
         notify({ title: 'Error', message: err.message, severity: 'error' })
       })
+
+    // window.sipapu.Spotify.get()
+    //   .then(setSpotify)
+    //   .catch(err => {
+    //     notify({ title: 'Error', message: err.message, severity: 'error' })
+    //   })
   }, [])
 
   const changeUsername = () => {
@@ -40,19 +60,34 @@ const Profile = ({ canLoginToSpotify }: ProfileProps) => {
       return notify({ title: 'Error', message: 'Username cannot be empty', severity: 'error' })
     }
 
-    window.sipapu.Profile.updateUsername(username)
+    account.updateName(username)
       .then(() => window.location.reload())
       .catch(err => {
         notify({ title: 'Error', message: err.message, severity: 'error' })
       })
+
+    // window.sipapu.Profile.updateUsername(username)
+    //   .then(() => window.location.reload())
+    //   .catch(err => {
+    //     notify({ title: 'Error', message: err.message, severity: 'error' })
+    //   })
   }
 
   const unlink = () => {
-    window.sipapu.Spotify.delete()
+    alert('TODO')
+    // window.sipapu.Spotify.delete()
+    //   .then(() => window.location.reload())
+    //   .catch(err => {
+    //     notify({ title: 'Error', message: err.message, severity: 'error' })
+    //   })
+  }
+
+  const signOut = () => {
+    // window.sipapu.signOut()
+    const account = new Account(window.api)
+
+    account.deleteSessions()
       .then(() => window.location.reload())
-      .catch(err => {
-        notify({ title: 'Error', message: err.message, severity: 'error' })
-      })
   }
 
   // TODO skeleton
@@ -72,7 +107,7 @@ const Profile = ({ canLoginToSpotify }: ProfileProps) => {
     <Typography
       variant="body1"
       className="w-full text-center">
-      Last used: {new Date(new Date(spotify.expiresAt).getTime() - 60 * 60 * 1000).toLocaleString()}
+      Last used: {new Date(new Date(spotify.expired_at).getTime() - 60 * 60 * 1000).toLocaleString()}
     </Typography>
 
     <Typography
@@ -103,7 +138,7 @@ const Profile = ({ canLoginToSpotify }: ProfileProps) => {
     <Typography
       variant="body1"
       className="w-full text-center">
-      Last used: {new Date(new Date(spotify.expiresAt).getTime() - 60 * 60 * 1000).toLocaleString()}
+      Last used: {new Date(new Date(spotify.expired_at).getTime() - 60 * 60 * 1000).toLocaleString()}
     </Typography>
 
     <Box className="w-full center pt-2">
@@ -132,7 +167,8 @@ const Profile = ({ canLoginToSpotify }: ProfileProps) => {
 
     <Box className="flex flex-col justify-center items-center w-full" sx={{ backgroundColor: purple[500] }}>
       <div className="pt-8">
-        <Avatar src={user.profilePicture} sx={{ width: '35vw', height: '35vw' }} />
+        {/* <Avatar src={user.profilePicture} sx={{ width: '35vw', height: '35vw' }} /> */}
+        <Avatar sx={{ width: '35vw', height: '35vw' }} />
       </div>
 
       <Typography 
@@ -141,7 +177,7 @@ const Profile = ({ canLoginToSpotify }: ProfileProps) => {
         width="100%"
         noWrap
         sx={{ color: 'white' }}>
-        {user.username}
+        {user.name}
       </Typography>
 
       <div className="pb-8" />
@@ -215,7 +251,7 @@ const Profile = ({ canLoginToSpotify }: ProfileProps) => {
       </Box> : null}
 
       <Box className="w-full center pt-4">
-        <Button onClick={() => window.sipapu.signOut()}>
+        <Button onClick={() => signOut()}>
           Sign Out
         </Button>
       </Box>

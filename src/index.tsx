@@ -7,10 +7,20 @@ import { purple } from '@mui/material/colors'
 import { createTheme, ThemeProvider } from '@mui/material'
 // import { getSessionCode } from './data/session'
 import { StatusBar } from '@capacitor/status-bar'
-import { Account, Client, Models } from 'appwrite'
+import { Account, Client, Databases, Models } from 'appwrite'
 import EventEmitter from 'events'
 
 window.sipapu = new Sipapu('kachina', process.env.REACT_APP_SUPABASE_URL, process.env.REACT_APP_SUPABASE_KEY, process.env.REACT_APP_TAWA_URL)
+window.api = new Client()
+window.api
+  .setEndpoint(process.env.REACT_APP_APPWRITE_URL)
+  .setProject(process.env.REACT_APP_APPWRITE_PROJECT)
+  .setEndpointRealtime(process.env.REACT_APP_APPWRITE_REALTIME)
+
+window.db = new Databases(window.api, 'main')
+
+window.accountEvents = new EventEmitter()
+
 
 // const Context = React.createContext<Session | null>(null)
 const Context = React.createContext<Models.User<Models.Preferences> | null>(null)
@@ -21,15 +31,6 @@ const Index = () => {
 
   useEffect(() => {
     // setSession(window.sipapu.client.auth.session())
-    window.api = new Client()
-
-    window.accountEvents = new EventEmitter()
-
-    window.api
-      .setEndpoint(process.env.REACT_APP_APPWRITE_URL)
-      .setProject(process.env.REACT_APP_APPWRITE_PROJECT)
-      .setEndpointRealtime(process.env.REACT_APP_APPWRITE_REALTIME)
-
     const account = new Account(window.api)
 
     account.get()
