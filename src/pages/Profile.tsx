@@ -107,7 +107,7 @@ const Profile = ({ canLoginToSpotify }: ProfileProps) => {
     <Typography
       variant="body1"
       className="w-full text-center">
-      Last used: {new Date(new Date(spotify.expired_at).getTime() - 60 * 60 * 1000).toLocaleString()}
+      Last used: {new Date(new Date(spotify.expires_at).getTime() - 60 * 60 * 1000).toLocaleString()}
     </Typography>
 
     <Typography
@@ -138,7 +138,7 @@ const Profile = ({ canLoginToSpotify }: ProfileProps) => {
     <Typography
       variant="body1"
       className="w-full text-center">
-      Last used: {new Date(new Date(spotify.expired_at).getTime() - 60 * 60 * 1000).toLocaleString()}
+      Last used: {new Date(new Date(spotify.expires_at).getTime() - 60 * 60 * 1000).toLocaleString()}
     </Typography>
 
     <Box className="w-full center pt-2">
