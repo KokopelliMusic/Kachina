@@ -1,5 +1,4 @@
-import React, { useEffect }  from 'react'
-import AnonRouter from './routers/AnonRouter'
+import React, { useEffect, useState }  from 'react'
 import AuthRouter from './routers/AuthRouter'
 import { BrowserRouter, Route, Routes } from 'react-router-dom'
 import Spotify from './pages/add/Spotify'
@@ -19,6 +18,10 @@ import Queue from './pages/session/Queue'
 import HistoryElement from './pages/session/History'
 import Settings from './pages/Settings'
 import AppUrlListener from './components/AppUrlListener'
+import Welcome from './pages/anon/Welcome'
+import { Account } from 'appwrite'
+import { getSessionCode } from './data/session'
+import FullscreenLoadingPage from './components/FullscreenLoadingPage'
 
 export const authPages = {
   playlists:        <AuthRouter element={<Playlists />} pageName="playlists" />,
@@ -49,46 +52,80 @@ export const sessionPages = {
 
 
 function App() {
+  const [isLoggedIn, setIsLoggedIn]         = useState(false)
+  const [timeoutExpired, setTimeoutExpired] = useState(false)
 
   useEffect(() => {
     // Always scroll to the top!
     document.getElementById('main-div')?.scrollTo(0,0)
   }, [])
 
+  useEffect(() => {
+    if (window.location.pathname === '/') {
+      if (getSessionCode()) {
+        window.location.href = '/session/session'
+      // } else if (window.sipapu.isLoggedIn()) {
+      } else if (isLoggedIn) {
+        window.location.href = '/auth/session'
+      }
+    }
+  }, [isLoggedIn])
+
+  const acc = new Account(window.api)
+  acc.get()
+    .then(() => setIsLoggedIn(true))
+    .catch(() => setIsLoggedIn(false))
+
+  setTimeout(() => setTimeoutExpired(true), 2000)
+
+  if (!timeoutExpired) {
+    return <div>
+      <FullscreenLoadingPage />
+    </div>
+  }
+
+  if (!isLoggedIn) {
+    return <BrowserRouter>
+      <AppUrlListener />
+      <Routes>
+        <Route path="/">
+          <Route path="/" element={<Welcome />} />
+          <Route path="*" element={<Welcome />} />
+        </Route>
+      </Routes>
+    </BrowserRouter>
+  }
+
   return <BrowserRouter>
     <AppUrlListener />
-    {window.sipapu.isLoggedIn() ?
-      <Routes>
-        <Route path="/session/">
-          <Route path="playlist" element={sessionPages.playlist} />
-          <Route path="session" element={sessionPages.session} />
-          <Route path="settings" element={sessionPages.settings} />
-          <Route path="add" element={sessionPages.add} />
-          <Route path="queue" element={sessionPages.queue} />
-          <Route path="history" element={sessionPages.history} />
-          <Route path="add/spotify/:id" element={sessionPages.spotify} />
-          <Route path="add/youtube/:id" element={sessionPages.youtube} />
-          <Route path="profile" element={sessionPages.profile} />
-          <Route path="*" element={sessionPages.notFound} />
-        </Route>
-        <Route path="/auth/">
-          <Route path="playlists" element={authPages.playlists} />
-          <Route path="session" element={authPages.session} />
-          <Route path="profile" element={authPages.profile} />
-          <Route path="edit/:id" element={authPages.edit} />
-          <Route path="add/:id" element={authPages.add} />
-          <Route path="add/spotify/:id" element={authPages.spotify} />
-          <Route path="add/youtube/:id" element={authPages.youtube} />
-          <Route path="sessionCreation" element={authPages.sessionCreation} />
-          <Route path="login/spotify" element={authPages.logIntoSpotify} />
-          <Route path="help" element={authPages.help} />
-          <Route path="*" element={authPages.notFound} />
-        </Route>
-      </Routes> :
-      <AnonRouter />
-    }
+    <Routes>
+      <Route path="/session/">
+        <Route path="playlist" element={sessionPages.playlist} />
+        <Route path="session" element={sessionPages.session} />
+        <Route path="settings" element={sessionPages.settings} />
+        <Route path="add" element={sessionPages.add} />
+        <Route path="queue" element={sessionPages.queue} />
+        <Route path="history" element={sessionPages.history} />
+        <Route path="add/spotify/:id" element={sessionPages.spotify} />
+        <Route path="add/youtube/:id" element={sessionPages.youtube} />
+        <Route path="profile" element={sessionPages.profile} />
+        <Route path="*" element={sessionPages.notFound} />
+      </Route>
+      <Route path="/auth/">
+        <Route path="playlists" element={authPages.playlists} />
+        <Route path="session" element={authPages.session} />
+        <Route path="profile" element={authPages.profile} />
+        <Route path="edit/:id" element={authPages.edit} />
+        <Route path="add/:id" element={authPages.add} />
+        <Route path="add/spotify/:id" element={authPages.spotify} />
+        <Route path="add/youtube/:id" element={authPages.youtube} />
+        <Route path="sessionCreation" element={authPages.sessionCreation} />
+        <Route path="login/spotify" element={authPages.logIntoSpotify} />
+        <Route path="help" element={authPages.help} />
+        <Route path="*" element={authPages.notFound} />
+      </Route>
+    </Routes>
   </BrowserRouter>
-
 }
 
 export default App

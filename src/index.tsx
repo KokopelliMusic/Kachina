@@ -3,43 +3,58 @@ import ReactDOM from 'react-dom'
 import './index.css'
 import App from './App'
 import { Sipapu } from 'sipapu'
-import { Session } from '@supabase/gotrue-js'
 import { purple } from '@mui/material/colors'
 import { createTheme, ThemeProvider } from '@mui/material'
-import { getSessionCode } from './data/session'
+// import { getSessionCode } from './data/session'
 import { StatusBar } from '@capacitor/status-bar'
-import { Client } from 'appwrite'
+import { Account, Client, Models } from 'appwrite'
+import EventEmitter from 'events'
 
 window.sipapu = new Sipapu('kachina', process.env.REACT_APP_SUPABASE_URL, process.env.REACT_APP_SUPABASE_KEY, process.env.REACT_APP_TAWA_URL)
-window.api = new Client()
 
-window.api
-  .setEndpoint(process.env.REACT_APP_APPWRITE_URL)
-  .setProject(process.env.REACT_APP_APPWRITE_PROJECT)
-
-const Context = React.createContext<Session | null>(null)
+// const Context = React.createContext<Session | null>(null)
+const Context = React.createContext<Models.User<Models.Preferences> | null>(null)
 
 const Index = () => {
-  const [session, setSession] = React.useState<Session | null>(null)
+  // const [session, setSession] = React.useState<Session | null>(null)
+  const [session, setSession] = React.useState<Models.User<Models.Preferences> | null>(null)
 
   useEffect(() => {
-
     // setSession(window.sipapu.client.auth.session())
+    window.api = new Client()
+
+    window.accountEvents = new EventEmitter()
+
+    window.api
+      .setEndpoint(process.env.REACT_APP_APPWRITE_URL)
+      .setProject(process.env.REACT_APP_APPWRITE_PROJECT)
+      .setEndpointRealtime(process.env.REACT_APP_APPWRITE_REALTIME)
+
+    const account = new Account(window.api)
+
+    account.get()
+      .then(setSession)
 
     const path = window.location.pathname
-    const code = getSessionCode()
     
-    if (code) {
-      window.sipapu.Session.setSessionId(code)
-    }
+    // if (code) {
+    //   window.sipapu.Session.setSessionId(code)
+    // }
 
-    if (path === '/') {
-      if (getSessionCode()) {
-        window.location.href = '/session/session'
-      } else if (window.sipapu.isLoggedIn()) {
-        window.location.href = '/auth/session'
-      }
-    }
+
+    window.accountEvents.on('change', session => {
+      console.log(session)
+      setSession(session)
+    })
+
+    // if (path === '/') {
+    //   if (getSessionCode()) {
+    //     window.location.href = '/session/session'
+    //   // } else if (window.sipapu.isLoggedIn()) {
+    //   } else if (session !== null) {
+    //     window.location.href = '/auth/session'
+    //   }
+    // }
 
     // window.sipapu.client.auth.onAuthStateChange((_event, session) => setSession(session))
   }, [])
