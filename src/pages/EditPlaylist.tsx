@@ -3,14 +3,13 @@ import { Box } from '@mui/system'
 import React, { useState, useEffect } from 'react'
 import { Add } from '@mui/icons-material'
 import { useParams } from 'react-router'
-import { PlaylistWithSongsType } from 'sipapu/dist/src/services/playlist'
 import { useNotification } from '../components/Snackbar'
-import { SongType } from 'sipapu/dist/src/services/song'
 import useRedirect from '../components/Redirect'
-import { ProfileType } from 'sipapu/dist/src/services/profile'
 import { purple } from '@mui/material/colors'
 import { getSessionCode } from '../data/session'
 import Kokopelli from '../components/Kokopelli'
+import { Account, Models, Query } from 'appwrite'
+import { Playlist, Song, SongTypeEnum } from 'sipapu-2'
 
 type EditPlaylistProps = {
   session?: boolean
@@ -23,37 +22,37 @@ const EditPlaylist = ({ session }: EditPlaylistProps) => {
 
   const [preload, setPreload]         = useState<boolean>(true)
   const [loading, setLoading]         = useState<boolean>(true)
-  const [playlistId, setPlaylistId]   = useState<number>(-1)
-  const [playlist, setPlaylist]       = useState<PlaylistWithSongsType | undefined>(undefined)
-  const [users, setUsers]             = useState<ProfileType[] | undefined>(undefined)
-  const [user, setUser]               = useState<ProfileType | undefined>(undefined)
+  const [playlistId, setPlaylistId]   = useState<string>('')
+  const [songs, setSongs]             = useState<Song[] | undefined>(undefined)
+  const [playlist, setPlaylist]       = useState<Playlist | undefined>(undefined)
+  const [user, setUser]               = useState<Models.User<Models.Preferences> | undefined>(undefined)
   const [canSee, setCanSee]           = useState<boolean>(true)
   
   // Modal state
   const [modalOpen, setModalOpen]       = useState(true)
-  const [selectedSong, setSelectedSong] = useState<SongType | undefined>(undefined)
+  const [selectedSong, setSelectedSong] = useState<Song | undefined>(undefined)
   
   useEffect(() => {
     // A lot of ifs in this code but they should all be true
     if (session) {
       const code = getSessionCode()
       if (code) {
-        window.sipapu.Session.get(code)
-          .then(session => {
-            console.log(session)
-            if (session) {
-              if (!session.settings.anyoneCanSeePlaylist) {
-                setCanSee(false)
-              }
-              setPlaylistId(session.playlistId)
-              setPreload(false)
-            }
-          })
+        // window.sipapu.Session.get(code)
+        //   .then(session => {
+        //     console.log(session)
+        //     if (session) {
+        //       if (!session.settings.anyoneCanSeePlaylist) {
+        //         setCanSee(false)
+        //       }
+        //       setPlaylistId(session.playlistId)
+        //       setPreload(false)
+        //     }
+        //   })
       }
     } else {
       // React router gives this guarantee
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-      setPlaylistId(parseInt(params.id!))
+      setPlaylistId(params.id!)
       setPreload(false)
     }
   }, [])
@@ -61,26 +60,32 @@ const EditPlaylist = ({ session }: EditPlaylistProps) => {
   useEffect(() => {
     if (preload) return
 
-    window.sipapu.Profile.getCurrent()
+    const account = new Account(window.api)
+
+    account.get()
       .then(setUser)
       .catch(err => {
         notify({ title: 'Error', message: err.message, severity: 'error' })
       })
 
-    window.sipapu.Playlist.getWithSongs(playlistId)
-      .then(async playlist => {
-        await window.sipapu.Playlist.getUsers(playlist.id)
-          .then(setUsers)
-          .catch(err => {
-            notify({ title: 'Error', message: err.message, severity: 'error' })
-          })
+    window.db.getDocument('playlist', playlistId)
+      .then(doc => {
+        console.log(doc)
+        setPlaylist(doc as unknown as Playlist)
+      })
 
-        setPlaylist(playlist)
+    window.db.listDocuments('song', [
+      Query.equal('playlist_id', playlistId)
+    ])
+      .then(s => {
+        console.log(s)
+        setSongs(s.documents as unknown as Song[])
       })
       .then(() => setLoading(false))
       .catch(err => {
         notify({ title: 'Error', message: err.message, severity: 'error' })
       })
+
   }, [preload])
 
   useEffect(() => {
@@ -108,7 +113,7 @@ const EditPlaylist = ({ session }: EditPlaylistProps) => {
     <Skeleton className="center ml-2" width="65%" height="100%" />
   </Box>
 
-  if (loading || !playlist || !users) {
+  if (loading || !playlist || !songs) {
     return <Box className="w-full h-full">
       <Snackbar />
 
@@ -159,6 +164,58 @@ const EditPlaylist = ({ session }: EditPlaylistProps) => {
     </Box>
   </Box>
 
+  if (songs.length === 0) return <Box className="p-4">
+    <Snackbar />
+    <main className="mb-8 scroll">
+      <div className="center w-full">
+        <Typography
+          className="w-11/12 text-center pt-4 pb-2"
+          noWrap
+          variant="h4">
+          {playlist.name}
+        </Typography>
+      </div>
+
+      <div className="w-full flex justify-center items-center pb-4">
+        {/* <Avatar src={user?.profilePicture} alt={user?.username} sx={{ bgcolor: purple[500], width: 36, height: 36 }}> */}
+        <Avatar alt={user?.name} sx={{ bgcolor: purple[500], width: 36, height: 36 }}>
+          {user?.name.substring(0, 1)}
+        </Avatar>
+
+        <div className="ml-2" />
+
+        <Typography
+          className="h-full">
+          Made by {!user ? '...' : user.name}
+        </Typography>
+      </div>
+
+      <div className="w-full center pb-4">
+        <Divider className="w-80"/>
+      </div>
+
+      <Typography
+        variant="h6"
+        className="text-center italic">
+        &quot;Ohne dich kann ich nicht sein&quot;
+      </Typography>
+
+      <Typography
+        variant="body1"
+        className="text-center pt-2 px-4">
+        There are no songs in this playlist, add the first with the button below!
+      </Typography>
+    </main>
+
+    <div className="pb-20" />
+
+    <div className="fixed bottom-20 right-6">
+      <Fab color="primary" onClick={clickAdd}>
+        <Add />
+      </Fab>
+    </div>
+  </Box>
+
   return <Box className="w-full h-full">
     <Snackbar />
     <SongDetailModal open={modalOpen} setOpen={setModalOpen} song={selectedSong} notify={notify} />
@@ -174,15 +231,16 @@ const EditPlaylist = ({ session }: EditPlaylistProps) => {
       </div>
 
       <div className="w-full flex justify-center items-center pb-4">
-        <Avatar src={user?.profilePicture} alt={user?.username} sx={{ bgcolor: purple[500], width: 36, height: 36 }}>
-          {user?.username.substring(0, 1)}
+        {/* <Avatar src={user?.profilePicture} alt={user?.username} sx={{ bgcolor: purple[500], width: 36, height: 36 }}> */}
+        <Avatar alt={user?.name} sx={{ bgcolor: purple[500], width: 36, height: 36 }}>
+          {user?.name.substring(0, 1)}
         </Avatar>
 
         <div className="ml-2" />
 
         <Typography
           className="h-full">
-          Made by {!user ? '...' : user.username}
+          Made by {!user ? '...' : user.name}
         </Typography>
       </div>
 
@@ -191,7 +249,7 @@ const EditPlaylist = ({ session }: EditPlaylistProps) => {
       </div>
 
       <List>
-        {playlist.songs.map(song => <SongItem key={song.id} song={song} selectSong={setSelectedSong} openModal={() => setModalOpen(true)} />)}
+        {songs.map(song => <SongItem key={song.$id} song={song} selectSong={setSelectedSong} openModal={() => setModalOpen(true)} />)}
       </List>
     </main>
 
@@ -206,14 +264,14 @@ const EditPlaylist = ({ session }: EditPlaylistProps) => {
 }
 
 type SongItemProps = {
-  song: SongType
-  selectSong: (song: SongType) => void
+  song: Song
+  selectSong: (song: Song) => void
   openModal: () => void
 }
 
 const SongItem = ({ song, selectSong, openModal }: SongItemProps) => {
   const cover  = song.cover ?? '/missing.jpg'
-  const artist = song.artist ?? 'YouTube'
+  const artist = song.artists ?? 'YouTube'
 
   return <ListItemButton disableGutters onClick={() => {
     selectSong(song)
@@ -232,7 +290,7 @@ const SongItem = ({ song, selectSong, openModal }: SongItemProps) => {
 }
 
 type SongDetailModalType = {
-  song: SongType | undefined
+  song: Song | undefined
   open: boolean
   setOpen: (open: boolean) => void
   notify: (notification: { title: string, message: string, severity: 'error' | 'success' }) => void
@@ -241,18 +299,8 @@ type SongDetailModalType = {
 const SongDetailModal = ({ open, setOpen, song, notify }: SongDetailModalType) => {
   if (!song) return null
 
-  const [user, setUser] = useState<ProfileType | undefined>(undefined)
-
-  useEffect(() => {
-    window.sipapu.Profile.get(song.addedBy)
-      .then(setUser)
-      .catch(err => {
-        notify({ title: 'Error', message: err.message, severity: 'error' })
-      })
-  }, [])
-
-  const remove = (id: number) => {
-    window.sipapu.Song.delete(id)
+  const remove = (id: string) => {
+    window.db.deleteDocument('song', id)
       .then(() => location.reload())
       .catch(err => {
         console.error(err)
@@ -265,10 +313,10 @@ const SongDetailModal = ({ open, setOpen, song, notify }: SongDetailModalType) =
 
     <DialogContent>
       <img src={song.cover ?? '/missing.jpg'} alt={song.title} className="w-full h-full" width={36} height={36} />
-      {song.songType === 'youtube' ? null :
+      {song.song_type === SongTypeEnum.YouTube ? null :
         <Box className="pt-2">        
           <DialogContentText>
-            Performed by: {song.artist ?? ''}
+            Performed by: {song.artists ?? ''}
           </DialogContentText>
         
           <DialogContentText>
@@ -279,16 +327,16 @@ const SongDetailModal = ({ open, setOpen, song, notify }: SongDetailModalType) =
       }
 
       <DialogContentText>
-        Added by: {!user ? '...' : user.username}
+        Added by: {song.user_name ?? '...'}
       </DialogContentText>
       <DialogContentText>
-        on: {new Date(song.createdAt).toLocaleString()}
+        on: {new Date(song.$createdAt).toLocaleString()}
       </DialogContentText>
 
     </DialogContent>
 
     <DialogActions>
-      <Button onClick={() => remove(song.id)}>Remove</Button>
+      <Button onClick={() => remove(song.$id)}>Remove</Button>
       <Button onClick={() => setOpen(false)}>Close</Button>
     </DialogActions>
   </Dialog>
