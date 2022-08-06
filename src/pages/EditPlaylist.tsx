@@ -69,18 +69,12 @@ const EditPlaylist = ({ session }: EditPlaylistProps) => {
       })
 
     window.db.getDocument('playlist', playlistId)
-      .then(doc => {
-        console.log(doc)
-        setPlaylist(doc as unknown as Playlist)
-      })
+      .then(doc => setPlaylist(doc as unknown as Playlist))
 
     window.db.listDocuments('song', [
       Query.equal('playlist_id', playlistId)
     ])
-      .then(s => {
-        console.log(s)
-        setSongs(s.documents as unknown as Song[])
-      })
+      .then(s => setSongs(s.documents as unknown as Song[]))
       .then(() => setLoading(false))
       .catch(err => {
         notify({ title: 'Error', message: err.message, severity: 'error' })

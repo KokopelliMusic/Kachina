@@ -23,10 +23,7 @@ const Playlists = () => {
       setForceReload(false)
     }
     window.db.listDocuments('playlist')
-      .then(lists => {
-        console.log(lists)
-        setPlaylists(lists.documents as unknown as Playlist[])
-      })
+      .then(lists => setPlaylists(lists.documents as unknown as Playlist[]))
       .then(() => setLoading(false))
       .catch(err => {
         notify({ title: 'Error', message: err.message, severity: 'error' })
