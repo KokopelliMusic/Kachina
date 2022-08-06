@@ -20,7 +20,7 @@
     "react-router-dom": "^6.2.1",
     "react-scripts": "5.0.0",
     "sipapu": "^1.1.45",
-    "sipapu-2": "^2.1.0",
+    "sipapu-2": "^2.1.4",
     "typescript": "^4.5.4",
     "use-debounce": "^7.0.1",
     "web-vitals": "^2.1.3"

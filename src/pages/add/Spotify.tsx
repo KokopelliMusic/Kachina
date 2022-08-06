@@ -7,8 +7,8 @@ import { useParams } from 'react-router-dom'
 import useRedirect from '../../components/Redirect'
 import { useNotification } from '../../components/Snackbar'
 import Kokopelli from '../../components/Kokopelli'
-import { SongEnum } from 'sipapu/dist/src/services/song'
-import { ProfileType } from 'sipapu/dist/src/services/profile'
+import { Account, Models } from 'appwrite'
+import { SongTypeEnum } from 'sipapu-2'
 
 
 // TODO:
@@ -19,8 +19,8 @@ const Spotify = () => {
   const params              = useParams()
   const [notify, Snackbar]  = useNotification()
   
-  const [query, setQuery]                   = useState('')
-  const [profile, setProfile] = useState<ProfileType>()
+  const [query, setQuery]     = useState('')
+  const [profile, setProfile] = useState<Models.User<Models.Preferences>>()
 
 
   // The query is debounced so that we don't make too many requests to the Spotify API
@@ -31,7 +31,8 @@ const Spotify = () => {
       notify({ title: 'Playlist ID unknown', message: 'Cannot find anything about this playlist, please log out and try again.', severity: 'error' })
     }
 
-    window.sipapu.Profile.getCurrent()
+    // window.sipapu.Profile.getCurrent()
+    (new Account(window.api)).get()
       .then(setProfile)
       .catch(err => notify({ title: 'Error getting profile', message: err.message, severity: 'error' }))
   }, [])
@@ -62,7 +63,7 @@ const Spotify = () => {
 type SearchPageProps = {
   query: string
   notify: (settings: any) => void
-  profile: ProfileType
+  profile: Models.User<Models.Preferences>
 }
 
 const SearchPage = ({ query, notify, profile }: SearchPageProps) => {
@@ -103,7 +104,7 @@ const SearchPage = ({ query, notify, profile }: SearchPageProps) => {
   return !queryResult.body ? 
     <Box>
       <Typography
-        className="text-center pt-4 px-2"
+        className="text-center pt-4 px-4"
         variant='h6'>
         To add an Spotify song to this playlist, search for it using the search bar above.
       </Typography>
@@ -130,7 +131,7 @@ const SearchPage = ({ query, notify, profile }: SearchPageProps) => {
         notify={notify} 
         forceReload={setForceReload} 
         queryResult={selectedResult} 
-        playlistId={parseInt(params.id!)} 
+        playlistId={params.id!} 
         profile={profile}/>
 
       <div className="pb-2">
@@ -198,34 +199,37 @@ type AddSongModalProps = {
   setOpen: (open: boolean) => void
   notify: (notification: { title: string, message: string, severity: 'error' | 'success' }) => void
   forceReload: (force: boolean) => void
-  playlistId: number
-  profile: ProfileType | undefined
+  playlistId: string
+  profile: Models.User<Models.Preferences> | undefined
   queryResult: any
 }
 
 const AddSongModal = ({ open, setOpen, notify, forceReload, queryResult, playlistId, profile }: AddSongModalProps) => {
   const handleClose = () => setOpen(false)
 
-  const artist = queryResult.artists?.map((artist: { name: string }) => artist.name).join(', ') ?? 'Unknown Artist'
+  const artists = queryResult.artists?.map((artist: { name: string }) => artist.name).join(', ') ?? 'Unknown Artist'
 
   const create = () => {
-  
-    window.sipapu.Song.createSpotify({
+
+    const song = {
       title: queryResult.name,
-      platformId: queryResult.id,
-      addedBy: profile!.id,
-      playlistId: playlistId,
-      queryResult,
-      songType: SongEnum.SPOTIFY,
-      artist,
-      cover: queryResult.album.images[0].url ?? '/missing.jpg',
-      length: queryResult.duration_ms,
+      artists,
       album: queryResult.album.name,      
-    })
+      length: queryResult.duration_ms,
+      cover: queryResult.album.images[0].url ?? undefined,
+      song_type: SongTypeEnum.Spotify,
+      added_by: profile!.$id,
+      platform_id: queryResult.id,
+      playlist_id: playlistId,
+      user_name: profile?.name
+    }
+
+    window.db.createDocument('song', 'unique()', song)
       .then(() => forceReload(true))
       .catch(err => {
         notify({ title: 'Error', message: err.message, severity: 'error' })
       })
+
   }
   
   if (!queryResult.id) return null
@@ -235,7 +239,7 @@ const AddSongModal = ({ open, setOpen, notify, forceReload, queryResult, playlis
 
     <DialogContent>
       <DialogContentText>
-        Do you want to add {queryResult.name} by {artist} from {queryResult.album.name} to this playlist?
+        Do you want to add {queryResult.name} by {artists} from {queryResult.album.name} to this playlist?
       </DialogContentText>
 
     </DialogContent>
