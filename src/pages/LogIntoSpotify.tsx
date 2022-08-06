@@ -25,10 +25,10 @@ export const fetchSpotifyToken = (code: string, redirectUri: string, redirectBac
     .then(data => {
       if (!data) return notify({ title: 'Error', message: 'Spotify authentication failed, please try again.', severity: 'error' })
 
-      window.sipapu.Spotify.create({
-        accessToken: data.access_token,
-        refreshToken: data.refresh_token,
-        expiresAt: new Date(new Date().getTime() + data.expires_in)
+      window.db.createDocument('spotify', 'unique()', {
+        access_token: data.access_token,
+        refresh_token: data.refresh_token,
+        expires_at: new Date().getTime() + data.expires_in
       }).then(() => {
         // Redirect back to original location after successful login
         window.location.href = redirectBack
@@ -61,12 +61,6 @@ const LogIntoSpotify = (props: LogIntoSpotifyProps) => {
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       setCode(params.get('code')!)
     }
-    // } else {
-    //   const params = new URLSearchParams(window.location.href.split('?')[1])
-    //   if (params.get('code')!) {
-    //     setCode(params.get('code')!)
-    //   }
-    // }
   }, [])
 
   useEffect(() => {

@@ -16,11 +16,8 @@ const Profile = ({ canLoginToSpotify }: ProfileProps) => {
   const [notify, Snackbar] = useNotification()
   const redirect           = useRedirect()
 
-  // const [user, setUser]       = useState<ProfileType>()
-  const [user, setUser]       = useState<Models.User<Models.Preferences>>()
-
-  const [spotify, setSpotify] = useState<Spotify>()
-
+  const [user, setUser]        = useState<Models.User<Models.Preferences>>()
+  const [spotify, setSpotify]  = useState<Spotify>()
   const [username, setUsername] = useState<string>('')
 
   const account = new Account(window.api)
@@ -33,12 +30,6 @@ const Profile = ({ canLoginToSpotify }: ProfileProps) => {
         notify({ title: 'Error', message: err.message, severity: 'error' })
       })
 
-    // window.sipapu.Profile.getCurrent()
-    //   .then(setUser)
-    //   .catch(err => {
-    //     notify({ title: 'Error', message: err.message, severity: 'error' })
-    //   })
-
     window.db.listDocuments('spotify')
       .then(spotify => {
         console.log(spotify)
@@ -47,12 +38,6 @@ const Profile = ({ canLoginToSpotify }: ProfileProps) => {
       .catch(err => {
         notify({ title: 'Error', message: err.message, severity: 'error' })
       })
-
-    // window.sipapu.Spotify.get()
-    //   .then(setSpotify)
-    //   .catch(err => {
-    //     notify({ title: 'Error', message: err.message, severity: 'error' })
-    //   })
   }, [])
 
   const changeUsername = () => {
@@ -65,25 +50,18 @@ const Profile = ({ canLoginToSpotify }: ProfileProps) => {
       .catch(err => {
         notify({ title: 'Error', message: err.message, severity: 'error' })
       })
-
-    // window.sipapu.Profile.updateUsername(username)
-    //   .then(() => window.location.reload())
-    //   .catch(err => {
-    //     notify({ title: 'Error', message: err.message, severity: 'error' })
-    //   })
   }
 
   const unlink = () => {
-    alert('TODO')
-    // window.sipapu.Spotify.delete()
-    //   .then(() => window.location.reload())
-    //   .catch(err => {
-    //     notify({ title: 'Error', message: err.message, severity: 'error' })
-    //   })
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion, @typescript-eslint/no-non-null-asserted-optional-chain
+    window.db.deleteDocument('spotify', spotify?.$id!)
+      .then(() => window.location.reload())
+      .catch(err => {
+        notify({ title: 'Error', message: err.message, severity: 'error' })
+      })
   }
 
   const signOut = () => {
-    // window.sipapu.signOut()
     const account = new Account(window.api)
 
     account.deleteSessions()
