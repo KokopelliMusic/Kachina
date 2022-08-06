@@ -16,23 +16,23 @@ const Add = ({ session }: AddProps) => {
 
   const [notify, Snackbar] = useNotification()
 
-  const [id, setId] = useState<number>(-1)
+  const [id, setId] = useState<string>('')
   
   useEffect(() => {
     if (session) {
       const code = getSessionCode()
       if (code) {
-        window.sipapu.Session.get(code)
-          .then(session => {
-            if (session) {
-              setId(session.playlistId)
-            }
-          })
+        // window.sipapu.Session.get(code)
+        //   .then(session => {
+        //     if (session) {
+        //       setId(session.playlistId)
+        //     }
+        //   })
       }
     } else {
       // React router gives this guarantee
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-      setId(parseInt(params.id!))
+      setId(params.id!)
     }
   })
 
