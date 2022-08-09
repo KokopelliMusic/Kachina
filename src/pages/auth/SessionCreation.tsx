@@ -1,16 +1,16 @@
 import React, { useEffect, useState } from 'react'
 import { Box } from '@mui/system'
 import { Button, FormControl, FormGroup, FormControlLabel, FormLabel, Switch, Radio, RadioGroup, Typography, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, TextField, Fab, List, Skeleton } from '@mui/material'
-import { SessionSettings, DEFAULT_SETTINGS, QueueAlgorithms } from 'sipapu/dist/src/services/session'
 import HelpOutlineIcon from '@mui/icons-material/HelpOutline'
 import { useNotification } from '../../components/Snackbar'
 import { NewPlaylistModal, PlaylistItem } from '../Playlists'
 import { Add } from '@mui/icons-material'
-import { PlaylistType } from 'sipapu/dist/src/services/playlist'
 import Kokopelli from '../../components/Kokopelli'
 import { createSpotifyLink, fetchSpotifyToken } from '../LogIntoSpotify'
 import OTP from '../../components/OTP'
 import { saveSessionCode } from '../../data/session'
+import { Playlist, QueueAlgorithms, SessionSettings, DEFAULT_SETTINGS } from 'sipapu-2'
+import { Account, Functions } from 'appwrite'
 
 // 1. Session settings
 // 2. Playlist selection
@@ -25,7 +25,7 @@ const SessionCreation = () => {
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-ignore
   const [settings, setSettings]       = useState<SessionSettings>(DEFAULT_SETTINGS)
-  const [playlist, setPlaylist]       = useState<number>()
+  const [playlist, setPlaylist]       = useState<string>('')
   const [spotifyCode, setSpotifyCode] = useState<string>('')
   const [sessionCode, setSessionCode] = useState<string>('')
 
@@ -43,18 +43,31 @@ const SessionCreation = () => {
   })
 
   useEffect(() => {
-    if (!sessionCode || sessionCode.length !== 4) return
+    (async () => {
+      if (!sessionCode || sessionCode.length !== 4) return
 
-    const playlist = Number.parseInt(localStorage.getItem('kachina:selectedPlaylist')!)
-
-    window.sipapu.Session.claim(playlist, sessionCode, settings)
-      .then(() => {
-        saveSessionCode(sessionCode)
-        window.location.href = '/session/session'
-      })
-      .catch(err => {
-        notify({ title: 'Error', message: err.message, severity: 'error' })
-      })
+      const account = new Account(window.api)
+      const user = await account.get()
+  
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      const playlist = localStorage.getItem('kachina:selectedPlaylist')!
+      const functions = new Functions(window.api)
+  
+      // window.sipapu.Session.claim(playlist, sessionCode, settings)
+      functions.createExecution('claimSession', JSON.stringify({
+        session_id: sessionCode,
+        playlist_id: playlist,
+        user_id: user.$id,
+        settings
+      }))
+        .then(() => {
+          saveSessionCode(sessionCode)
+          window.location.href = '/session/session'
+        })
+        .catch(err => {
+          notify({ title: 'Error', message: err.message, severity: 'error' })
+        })
+    })()
   }, [sessionCode])
 
   const next = () => {
@@ -412,37 +425,39 @@ const SettingsInfoModal = ({ open, setOpen, title, info }: SettingsInfoModalProp
 }
 
 type PlaylistSelectionProps = Props & {
-  setPlaylist: (playlist: number) => void
+  setPlaylist: (playlist: string) => void
 }
 
 const PlaylistSelection = ({ next, skip, setPlaylist, settings, notify }: PlaylistSelectionProps) => {
-  const [playlists, setPlaylists]     = useState<PlaylistType[]>([])
+  const [playlists, setPlaylists]     = useState<Playlist[]>([])
   const [loading, setLoading]         = useState(true)
   const [openModal, setOpenModal]     = useState(false)
   const [forceReload, setForceReload] = useState(false)
   const [spotify, setSpotify]         = useState(false)
 
   useEffect(() => {
-    window.sipapu.Spotify.get()
-      .then(s => setSpotify(!!s))
+    window.db.listDocuments('spotify')
+      .then(s => setSpotify(s.documents.length !== 0))
       .catch(() => setSpotify(false))
+
   }, [])
 
   useEffect(() => {
     if (forceReload) {
       setForceReload(false)
     }
-    window.sipapu.Playlist.getAllFromUser()
-      .then(setPlaylists)
+
+    window.db.listDocuments('playlist')
+      .then(p => setPlaylists(p.documents as unknown as Playlist[]))
       .then(() => setLoading(false))
       .catch(err => {
         notify({ title: 'Error', message: err.message, severity: 'error' })
       })
   }, [forceReload])
 
-  const selectPlaylist = (id: number) => {
+  const selectPlaylist = (id: string) => {
     setPlaylist(id)
-    localStorage.setItem('kachina:selectedPlaylist', '' + id)
+    localStorage.setItem('kachina:selectedPlaylist', id)
     if (spotify || !settings?.allowSpotify) {
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       return skip!()
@@ -525,8 +540,8 @@ const PlaylistSelection = ({ next, skip, setPlaylist, settings, notify }: Playli
     <main className="mb-auto flex flex-col items-center scroll">
 
       <List sx={{ width: '100%' }}>
-        {playlists.map(playlist => (<div key={playlist.id}>
-          <PlaylistItem onClick={() => selectPlaylist(playlist.id)} playlist={playlist}/>
+        {playlists.map(playlist => (<div key={playlist.$id}>
+          <PlaylistItem onClick={() => selectPlaylist(playlist.$id)} playlist={playlist}/>
         </div>))}
       </List>
     </main>
@@ -557,11 +572,9 @@ const SpotifyCheck = ({ next, code, notify }: SpotifyCheckProps) => {
   }, [code])
 
   useEffect(() => {
-    console.log('code', code)
-
-    window.sipapu.Spotify.get()
+    window.db.listDocuments('spotify')
       .then(s => {
-        if (s) {
+        if (s.documents.length > 0) {
           next()
         }
       })
@@ -587,7 +600,7 @@ const SpotifyCheck = ({ next, code, notify }: SpotifyCheckProps) => {
       sx={{ color: 'red' }}
       className="pb-2">
       Note: this might redirect you to an empty page. If that is the case press the back button and try again. If it still does not work
-      please send an email to kokopelli@nierot.com
+      please send an email to kokopellimusic@nierot.com
     </Typography>
     <Button onClick={login}>Login to Spotify</Button>
   </Box>
