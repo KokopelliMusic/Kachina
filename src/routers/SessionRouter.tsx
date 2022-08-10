@@ -10,7 +10,6 @@ import { Link, useNavigate } from 'react-router-dom'
 import useRedirect from '../components/Redirect'
 import { getSessionCode } from '../data/session'
 import { useNotification } from '../components/Snackbar'
-import { Event } from 'sipapu/dist/src/events'
 
 type SessionRouterProps = {
   element: React.ReactNode
@@ -31,13 +30,6 @@ const SessionRouter = ({ element, elevation, pageName }: SessionRouterProps) => 
   const [notify, Snackbar]  = useNotification()
 
   const [code, setCode]     = useState<string>('')
-  const [event, setEvent]   = useState<Event>({
-    session: getSessionCode(),
-    clientType: 'kachina',
-    eventType: 'generic',
-    date: new Date().getTime(),
-    data: { error: false },
-  })
 
   const clickOnProfile = () => {
     redirect('/profile')
@@ -51,18 +43,9 @@ const SessionRouter = ({ element, elevation, pageName }: SessionRouterProps) => 
       setTimeout(() => navigate('/auth/session'), 5000)
       return
     }
-
-    const close = window.sipapu.Session.watch(code, e => setEvent(e))
-
-    setCode(code)
-    // close the connection with the backend
-    return () => {
-      const fun = async () => (await close)()
-      fun()
-    }
   }, [])
 
-  return <EventContext.Provider value={event}>
+  return <Box>
     <Snackbar />
     <Box className="h-screen w-screen overflow-hidden">
       <Paper elevation={3}>
@@ -124,7 +107,7 @@ const SessionRouter = ({ element, elevation, pageName }: SessionRouterProps) => 
         </BottomNavigation>
       </Paper>
     </Box>
-  </EventContext.Provider> 
+  </Box> 
 }
 
 
