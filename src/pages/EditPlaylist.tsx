@@ -9,7 +9,7 @@ import { purple } from '@mui/material/colors'
 import { getSessionCode } from '../data/session'
 import Kokopelli from '../components/Kokopelli'
 import { Account, Models, Query } from 'appwrite'
-import { Playlist, Song, SongTypeEnum } from 'sipapu-2'
+import { Playlist, Session, Song, SongTypeEnum } from 'sipapu-2'
 
 type EditPlaylistProps = {
   session?: boolean
@@ -37,6 +37,19 @@ const EditPlaylist = ({ session }: EditPlaylistProps) => {
     if (session) {
       const code = getSessionCode()
       if (code) {
+        window.db.getDocument('session', code)
+          .then(s => {
+            console.log(s)
+            const session = s as unknown as Session
+            const settings = JSON.parse(session.settings)
+            
+            if (!settings.anyoneCanSeePlaylist) {
+              setCanSee(false)
+            }
+
+            setPlaylistId(session.playlist_id)
+            setPreload(false)
+          })
         // window.sipapu.Session.get(code)
         //   .then(session => {
         //     console.log(session)
