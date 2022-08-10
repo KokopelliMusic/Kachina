@@ -1,7 +1,5 @@
 import { Client, Databases } from 'appwrite'
 import EventEmitter from 'events'
-import { Sipapu } from 'sipapu'
-
 declare global {
     namespace NodeJS {
         interface ProcessEnv {
@@ -22,7 +20,6 @@ declare global {
     }
 
     interface Window {
-        sipapu: Sipapu;
         api: Client;
         db: Databases;
         accountEvents: EventEmitter

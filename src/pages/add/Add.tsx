@@ -22,12 +22,8 @@ const Add = ({ session }: AddProps) => {
     if (session) {
       const code = getSessionCode()
       if (code) {
-        // window.sipapu.Session.get(code)
-        //   .then(session => {
-        //     if (session) {
-        //       setId(session.playlistId)
-        //     }
-        //   })
+        window.db.getDocument('session', code)
+          .then(session => setId(session.playlist_id))
       }
     } else {
       // React router gives this guarantee

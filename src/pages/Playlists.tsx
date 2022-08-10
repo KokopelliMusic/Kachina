@@ -142,8 +142,7 @@ export const NewPlaylistModal = ({ open, setOpen, notify, forceReload }: NewPlay
     setError(false)
 
     window.db.createDocument('playlist', 'unique()', {
-      name,
-      songs: []
+      name
     })
       .then(() => {
         handleClose()

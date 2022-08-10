@@ -1,0 +1,378 @@
+make.exe all --print-data-base --no-builtin-variables --no-builtin-rules --question
+# GNU Make 3.81
+# Copyright (C) 2006  Free Software Foundation, Inc.
+# Dit is vrije programmatuur; zie de brontekst voor de kopieervoorwaarden.
+# Er is GEEN garantie; zelfs niet voor VERHANDELBAARHEID of
+# GESCHIKTHEID VOOR EEN BEPAALD DOEL.
+
+# Dit programma is gemaakt voor i386-pc-mingw32
+ 
+
+# Make-gegevensbank, weergegeven op Wed Aug 10 13:18:42 2022
+
+# Variabelen
+
+# automatisch
+<D = $(patsubst %/,%,$(dir $<))
+# automatisch
+?F = $(notdir $?)
+# makefile
+MAKEFLAGS = Rrqp
+# automatisch
+?D = $(patsubst %/,%,$(dir $?))
+# automatisch
+@D = $(patsubst %/,%,$(dir $@))
+# omgeving
+HOMEDRIVE = C:
+# automatisch
+@F = $(notdir $@)
+# automatisch
+^D = $(patsubst %/,%,$(dir $^))
+# makefile
+CURDIR := c:/Users/Niels/Kachina
+# standaard
+SHELL := sh.exe
+# omgeving
+WINDIR = C:\Windows
+# omgeving
+VSCODE_NLS_CONFIG = {"locale":"en-gb","availableLanguages":{},"_languagePackSupport":true}
+# omgeving
+NVM_HOME = C:\Users\Niels\AppData\Roaming\nvm
+# omgeving
+PATHEXT = .COM;.EXE;.BAT;.CMD;.VBS;.VBE;.JS;.JSE;.WSF;.WSH;.MSC;.PY;.PYW
+# makefile (van 'makefile', regel 1)
+MAKEFILE_LIST :=  makefile
+# omgeving
+FPS_BROWSER_USER_PROFILE_STRING = Default
+# omgeving
+TMP = C:\Users\Niels\AppData\Local\Temp
+# omgeving
+PROGRAMW6432 = C:\Program Files
+# omgeving
+NVM_SYMLINK = C:\Program Files\nodejs
+# omgeving
+PROGRAMDATA = C:\ProgramData
+# omgeving
+VSCODE_CWD = C:\Program Files\Microsoft VS Code
+# omgeving
+PATH = c:\program files\python310\scripts\;c:\program files\python310\;c:\program files\eclipse adoptium\jdk-17.0.1.12-hotspot\bin;c:\program files (x86)\adoptopenjdk\jdk-15.0.2.7-hotspot\bin;c:\program files\eclipse foundation\jdk-16.0.2.7-hotspot\bin;c:\python39\scripts\;c:\python39\;c:\program files\adoptopenjdk\jre-8.0.292.10-hotspot\bin;c:\windows\system32;c:\windows;c:\windows\system32\wbem;c:\windows\system32\windowspowershell\v1.0\;c:\windows\system32\openssh\;c:\program files\nvidia corporation\nvidia nvdlisr;c:\program files\microsoft vs code\bin;c:\program files\dotnet\;c:\program files\git\cmd;c:\programdata\chocolatey\bin;c:\env\platform-tools;c:\android;c:\tools\php80;c:\users\niels\appdata\roaming\nvm;c:\program files\nodejs;c:\program files\go\bin;c:\tdm-gcc-64\bin;c:\users\niels\appdata\roaming\python\python310\site-packages;c:\users\niels\appdata\roaming\python\python38\scripts;c:\program files (x86)\gnuwin32\bin;c:\program files (x86)\yarn\bin\;c:\program files\docker\docker\resources\bin;c:\programdata\dockerdesktop\version-bin;C:\Program Files (x86)\NVIDIA Corporation\PhysX\Common;C:\Program Files\Microsoft VS Code\bin;C:\Users\Niels\scoop\shims;C:\Users\Niels\AppData\Local\Microsoft\WindowsApps;C:\Users\Niels\AppData\Roaming\npm;C:\Users\Niels\AppData\Roaming\nvm;C:\Program Files\nodejs;C:\Users\Niels\go\bin;C:\Users\Niels\AppData\Local\GitHubDesktop\bin;C:\Program Files (x86)\GitHub CLI\;C:\Users\Niels\AppData\Local\Yarn\bin;C:\Users\Niels\.deno\bin;C:\tools\dart-sdk\bin;C:\Users\Niels\AppData\Roaming\Pub\Cache\bin;
+# omgeving
+COMMONPROGRAMW6432 = C:\Program Files\Common Files
+# omgeving
+CHOCOLATEYLASTPATHUPDATE = 133043406468507082
+# omgeving
+PROCESSOR_ARCHITECTURE = x86
+# omgeving
+ONEDRIVE = C:\Users\Niels\OneDrive
+# omgeving
+USERPROFILE = C:\Users\Niels
+# omgeving
+CHOCOLATEYINSTALL = C:\ProgramData\chocolatey
+# omgeving
+ALLUSERSPROFILE = C:\ProgramData
+# omgeving
+GOPATH = C:\Users\Niels\go
+# omgeving
+NUMBER_OF_PROCESSORS = 16
+# omgeving
+ELECTRON_RUN_AS_NODE = 1
+# standaard
+.FEATURES := target-specific order-only second-expansion else-if archives
+# automatisch
+%F = $(notdir $%)
+# omgeving
+ANDROID_SDK_HOME = C:\Android
+# omgeving
+CHROME_CRASHPAD_PIPE_NAME = \\.\pipe\crashpad_308_DFFDFHTLDVAFTOTU
+# omgeving
+COMPUTERNAME = NIELSPC
+# omgeving
+PROGRAMFILES = C:\Program Files (x86)
+# omgeving
+DRIVERDATA = C:\Windows\System32\Drivers\DriverData
+# omgeving
+ORIGINAL_XDG_CURRENT_DESKTOP = undefined
+# omgeving
+USERNAME = Niels
+# omgeving
+PUBLIC = C:\Users\Public
+# omgeving
+VSCODE_AMD_ENTRYPOINT = vs/workbench/api/node/extensionHostProcess
+# omgeving
+CHOCOLATEYTOOLSLOCATION = C:\tools
+# omgeving
+VSCODE_CODE_CACHE_PATH = C:\Users\Niels\AppData\Roaming\Code\CachedData\da76f93349a72022ca4670c1b84860304616aaa2
+# omgeving
+APPLICATION_INSIGHTS_NO_DIAGNOSTIC_CHANNEL = true
+# omgeving
+COMMONPROGRAMFILES = C:\Program Files (x86)\Common Files
+# omgeving
+LOGONSERVER = \\NIELSPC
+# omgeving
+VSCODE_HANDLES_UNCAUGHT_ERRORS = true
+# omgeving
+USERDOMAIN = NIELSPC
+# standaard
+MAKE = $(MAKE_COMMAND)
+# standaard
+MAKECMDGOALS := all
+# omgeving
+JAVA_HOME = C:\Program Files\Eclipse Adoptium\jdk-17.0.1.12-hotspot\
+# standaard
+MAKE_VERSION := 3.81
+# makefile
+.DEFAULT_GOAL := start
+# omgeving
+PROGRAMFILES(X86) = C:\Program Files (x86)
+# automatisch
+%D = $(patsubst %/,%,$(dir $%))
+# omgeving
+LOCALAPPDATA = C:\Users\Niels\AppData\Local
+# omgeving
+PSMODULEPATH = C:\Program Files\WindowsPowerShell\Modules;C:\Windows\system32\WindowsPowerShell\v1.0\Modules
+# standaard
+MAKE_COMMAND := make.exe
+# omgeving
+PROCESSOR_ARCHITEW6432 = AMD64
+# standaard
+.VARIABLES := 
+# automatisch
+*F = $(notdir $*)
+# omgeving
+PROCESSOR_IDENTIFIER = AMD64 Family 25 Model 33 Stepping 0, AuthenticAMD
+# omgeving
+OS = Windows_NT
+# omgeving
+VSCODE_IPC_HOOK = \\.\pipe\c593f802c2c73e9118db1f300daee437-1.70.0-main-sock
+# omgeving
+HOMEPATH = \Users\Niels
+# omgeving
+COMMONPROGRAMFILES(X86) = C:\Program Files (x86)\Common Files
+# omgeving
+PROMPT = $P$G
+# omgeving
+MFLAGS = -Rrqp
+# automatisch
+*D = $(patsubst %/,%,$(dir $*))
+# omgeving
+SYSTEMROOT = C:\Windows
+# automatisch
++D = $(patsubst %/,%,$(dir $+))
+# automatisch
++F = $(notdir $+)
+# omgeving
+APPDATA = C:\Users\Niels\AppData\Roaming
+# omgeving
+TEMP = C:\Users\Niels\AppData\Local\Temp
+# omgeving
+COMSPEC = C:\Windows\system32\cmd.exe
+# standaard
+MAKEFILES := 
+# automatisch
+<F = $(notdir $<)
+# omgeving
+LC_ALL = C
+# automatisch
+^F = $(notdir $^)
+# standaard
+SUFFIXES := 
+# omgeving
+SYSTEMDRIVE = C:
+# omgeving
+SESSIONNAME = Console
+# omgeving
+PROCESSOR_REVISIO 
+N = 2100
+# omgeving
+MAKELEVEL := 0
+# omgeving
+LANG = C
+# omgeving
+PROCESSOR_LEVEL = 25
+# omgeving
+FPS_BROWSER_APP_PROFILE_STRING = Internet Explorer
+# omgeving
+VSCODE_PID = 308
+# omgeving
+USERDOMAIN_ROAMINGPROFILE = NIELSPC
+# variabele verzameling van hashtabel-statistieken:
+# Belasting=91/1024=9%, Rehash=0, Botsingen=10/111=9%
+
+# Patroonspecifieke variabelewaarden
+
+# Geen patroonspecifieke variabelewaarden
+
+# Mappen
+
+# kan status van C:\Users\Niels\AppData\Local\Yarn\bin niet opvragen.
+# C:\Users\Niels\go\bin (sleutel C:/Users/Niels/go/bin, wijzigingstijd 1650121335): 12 bestanden, geen onmogelijkheden.
+# c:\program files\docker\docker\resources\bin (sleutel c:/program files/docker/docker/resources/bin, wijzigingstijd 1645621049): 13 bestanden, geen onmogelijkheden.
+# c:\program files\go\bin (sleutel c:/program files/go/bin, wijzigingstijd 1635715142): 4 bestanden, geen onmogelijkheden.
+# c:\program files\eclipse foundation\jdk-16.0.2.7-hotspot\bin (sleutel c:/program files/eclipse foundation/jdk-16.0.2.7-hotspot/bin, wijzigingstijd 1628156782): 123 bestanden, geen onmogelijkheden.
+# c:\android (sleutel c:/android, wijzigingstijd 1628156941): 8 bestanden, geen onmogelijkheden.
+# kan status van c:\users\niels\appdata\roaming\python\python38\scripts niet opvragen.
+# c:\windows\system32\windowspowershell\v1.0\ (sleutel c:/windows/system32/windowspowershell/v1.0/, wijzigingstijd 1617976099): 30 bestanden, geen onmogelijkheden.
+# c:\windows\system32\wbem (sleutel c:/windows/system32/wbem, wijzigingstijd 1659973113): 169 bestanden, geen onmogelijkheden.
+# . (sleutel c:/Users/Niels/Kachina, wijzigingstijd 1659705633): 25 bestanden, geen onmogelijkheden.
+# C:\Program Files (x86)\NVIDIA Corporation\PhysX\Common (sleutel C:/Program Files (x86)/NVIDIA Corporation/PhysX/Common, wijzigingstijd 1653835260): 10 bestanden, geen onmogelijkheden.
+# c:\programdata\dockerdesktop\version-bin (sleutel c:/programdata/dockerdesktop/version-bin, wijzigingstijd 1645620963): 2 bestanden, geen onmogelijkheden.
+# c:\programdata\chocolatey\bin (sleutel c:/programdata/chocolatey/bin, wijzigingstijd 1636299615): 84 bestanden, geen onmogelijkheden.
+# c:\tools\php80 (sleutel c:/tools/php80, wijzigingstijd 1632124920): 39 bestanden, geen onmogelijkheden.
+# c:\program files\dotnet\ (sleutel c:/program files/dotnet/, wijzigingstijd 1640963279): 8 bestanden, geen onmogelijkheden.
+# c:\tdm-gcc-64\bin (sleutel c:/tdm-gcc-64/bin, wijzigingstijd 1636297758): 61 bestanden, geen onmogelijkheden.
+# c:\program files\eclipse adoptium\jdk-17.0.1.12-hotspot\bin (sleutel c:/program files/eclipse adoptium/jdk-17.0.1.12-hotspot/bin, wijzigingstijd 1638181760): 122 bestanden, geen onmogelijkheden.
+# c:\program files\nodejs (sleutel c:/program files/nodejs, wijzigingstijd 1640611602): 11 bestanden, geen onmogelijkheden.
+# C:\Users\Niels\.deno\bin (sleutel C:/Users/Niels/.deno/bin, wijzigingstijd 1660059170): 5 bestanden, geen onmogelijkheden.
+# kan status van c:\windows\system32\openssh\ niet opvragen.
+# c:\users\niels\appdata\roaming\python\python310\site-packages (sleutel c:/users/niels/appdata/roaming/python/python310/site-packages, wijzigingstijd 1659779017): 26 bestanden, geen onmogelijkheden.
+# kan status van C:\Users\Niels\AppData\Roaming\Pub\Cache\bin niet opvragen.
+# c:\program files\python310\ (sleutel c:/program files/python310/, wijzigingstijd 1638197418): 21 bestanden, geen onmogelijkheden.
+# c:\program files\microsoft vs code\bin (sleutel c:/program files/microsoft vs code/bin, wijzigingstijd 1659775206): 4 bestanden, geen onmogelijkheden.
+# c:\program files\adoptopenjdk\jre-8.0.292.10-hotspot\bin (sleutel c:/program files/adoptopenjdk/jre-8.0.292.10-hotspot/bin, wijzigingstijd 1627673643): 61 bestanden, geen onmogelijkheden.
+# c:\windows (sleutel c:/windows, wijzigingstijd 1659973112): 113 bestanden, geen onmogelijkheden.
+# c:\program files\python310\scripts\ (sleutel c:/program files/python310/scripts/, wijzigingstijd 1638197619): 9 bestanden, geen onmogelijkheden.
+# C:\Users\Niels\AppData\Roaming\npm (sleutel C:/Users/Niels/AppData/Roaming/npm, wijzigingstijd 1659641399): 57 bestanden, geen onmogelijkheden.
+# c:\env\platform-tools (sleutel c:/env/platform-tools, wijzigingstijd 1628155473): 18 bestanden, geen onmogelijkheden.
+# c:\users\niels\appdata\roaming\nvm (sleutel c:/users/niels/appdata/roaming/nvm, wijzigingstijd 1636136943): 13 bestanden, geen onmogelijkheden.
+# c:\python39\ (sleutel c:/python39/, wijzigingstijd 1627739273): 18 bestanden, geen onmogelijkheden.
+# c:\program files (x86)\adoptopenjdk\jdk-15.0.2.7-hotspot\bin (sleutel c:/program files (x86)/adoptopenjdk/jdk-15.0.2.7-hotspot/bin, wijzigingstijd 1628160630): 128 bestanden, geen onmogelijkheden.
+# C:\tools\dart-sdk\bin (sleutel C:/tools/dart-sdk/bin, wijzigingstijd 1657594032): 11 bestanden, geen onmogelijkheden.
+# c:\python39\scripts\ (sleutel c:/python39/scripts/, wijzigingstijd 1627739273): 5 bestanden, geen onmogelijkheden.
+# C:\Program Files (x86)\GitHub CLI\ (sleutel C:/Program Files (x86)/GitHub CLI/, wijzigingstijd 1638550216): 3 bestanden, geen onmogelijkheden.
+# C:\Users\Niels\scoop\shims (sleutel C:/Users/Niels/scoop/shims, wijzigingstijd 1641661161): 11 bestanden, geen onmogelijkheden.
+# c:\program files\git\cmd (sleutel c:/program files/git/cmd, wijzigingstijd 1627675073): 8 bestanden, geen onmogelijkheden.
+# c:\windows\system32 (sleutel c:/windows/system32, wijzigingstijd 1660068302): 3027 bestanden, geen onmogelijkheden.
+# C:\Users\Niels\AppData\Local\GitHubDesktop\bin (sleutel C:/Users/Niels/AppData/Local/GitHubDesktop/bin, wijzigingstijd 1636221848): 4 bestanden, geen onmogelijkheden.
+# C:\Users\Niels\AppData\Local\Microsoft\WindowsApps (sleutel C:/Users/Niels/AppData/Local/Microsoft/WindowsApps, wijzigingstijd 1659802438): 21 bestanden, geen onmogelijkheden.
+# c:\program files (x86)\yarn\bin\ (sleutel c:/program files (x86)/yarn/bin/, wijzigingstijd 1641637222): 7 bestanden, geen onmogelijkheden.
+# c:\program files\nvidia corporation\nvidia nvdlisr (sleutel c:/program files/nvidia corporation/nvidia nvdlisr, wijzigingstijd 1653835265): 5 bestanden, geen onmogelijkheden.
+# c:\pro 
+gram files (x86)\gnuwin32\bin (sleutel c:/program files (x86)/gnuwin32/bin, wijzigingstijd 1639216255): 5 bestanden, geen onmogelijkheden.
+
+# 4301 bestanden, geen onmogelijkheden in 43 mappen.
+
+# Impliciete regels
+
+# Geen impliciete regels.
+
+# Bestanden
+
+# Geen doel:
+all:
+#  Doel afkomstig van opdrachtregel.
+#  Impliciete regel-zoekopdracht is uitgevoerd.
+#  Bestand bestaat niet.
+#  Bestand is niet bijgewerkt.
+# variabele verzameling van hashtabel-statistieken:
+# Belasting=0/32=0%, Rehash=0, Botsingen=0/0=0%
+
+# Geen doel:
+.DEFAULT:
+#  Impliciete regel-zoekopdracht is niet uitgevoerd.
+#  Wijzigingstijd is nooit gecontroleerd.
+#  Bestand is niet bijgewerkt.
+
+start:
+#  Impliciete regel-zoekopdracht is niet uitgevoerd.
+#  Wijzigingstijd is nooit gecontroleerd.
+#  Bestand is niet bijgewerkt.
+#  uit te voeren opdrachten (van 'makefile', regel 4):
+	npx react-scripts start
+	
+
+minor-version:
+#  Impliciete regel-zoekopdracht is niet uitgevoerd.
+#  Wijzigingstijd is nooit gecontroleerd.
+#  Bestand is niet bijgewerkt.
+#  uit te voeren opdrachten (van 'makefile', regel 21):
+	npm version minor
+	
+
+# Geen doel:
+makefile:
+#  Impliciete regel-zoekopdracht is uitgevoerd.
+#  Laatst gewijzigd 2022-08-05 15:20:33
+#  Bestand is bijgewerkt.
+#  Succesvol bijgewerkt.
+# variabele verzameling van hashtabel-statistieken:
+# Belasting=0/32=0%, Rehash=0, Botsingen=0/0=0%
+
+build: patch-version only-build sync
+#  Impliciete regel-zoekopdracht is niet uitgevoerd.
+#  Wijzigingstijd is nooit gecontroleerd.
+#  Bestand is niet bijgewerkt.
+
+sync:
+#  Impliciete regel-zoekopdracht is niet uitgevoerd.
+#  Wijzigingstijd is nooit gecontroleerd.
+#  Bestand is niet bijgewerkt.
+#  uit te voeren opdrachten (van 'makefile', regel 13):
+	npx cap sync android
+	
+
+only-build:
+#  Impliciete regel-zoekopdracht is niet uitgevoerd.
+#  Wijzigingstijd is nooit gecontroleerd.
+#  Bestand is niet bijgewerkt.
+#  uit te voeren opdrachten (van 'makefile', regel 10):
+	npx react-scripts build
+	
+
+# Geen doel:
+.SUFFIXES:
+#  Impliciete regel-zoekopdracht is niet uitgevoerd.
+#  Wijzigingstijd is nooit gecontroleerd.
+#  Bestand is niet bijgewerkt.
+
+open: only-build sync
+#  Impliciete regel-zoekopdracht is niet uitgevoerd.
+#  Wijzigingstijd is nooit gecontroleerd.
+#  Bestand is niet bijgewerkt.
+#  uit te voeren opdrachten (van 'makefile', regel 24):
+	npx cap open android
+	
+
+generate-resources:
+#  Impliciete regel-zoekopdracht is niet uitgevoerd.
+#  Wijzigingstijd is nooit gecontroleerd.
+#  Bestand is niet bijgewerkt.
+#  uit te voeren opdrachten (van 'makefile', regel 27):
+	npx capacitor-r 
+esources -p android
+	
+
+patch-version:
+#  Impliciete regel-zoekopdracht is niet uitgevoerd.
+#  Wijzigingstijd is nooit gecontroleerd.
+#  Bestand is niet bijgewerkt.
+#  uit te voeren opdrachten (van 'makefile', regel 18):
+	npm version patch
+	
+
+lint:
+#  Impliciete regel-zoekopdracht is niet uitgevoerd.
+#  Wijzigingstijd is nooit gecontroleerd.
+#  Bestand is niet bijgewerkt.
+#  uit te voeren opdrachten (van 'makefile', regel 7):
+	npx eslint --ext .js,.jsx,.ts,.tsx --fix src
+	
+
+# hashtabel-statistieken van besta 
+make.exe: *** Er is geen regel om doel 'all' te maken.  Gestopt.
+
+nden:
+# Belasting=13/1024=1%, Rehash=0, Botsingen=0/29=0%
+# VPATH-zoekpaden
+
+# Geen 'vpath'-zoekpaden.
+
+# Geen algemeen zoekpad ('VPATH'-variabele).
+
+# # of strings in strcache: 1
+# # of strcache buffers: 1
+# strcache size: total = 4096 / max = 4096 / min = 4096 / avg = 4096
+# strcache free: total = 4087 / max = 4087 / min = 4087 / avg = 4087
+
+# Make-gegevensbank voltooid op Wed Aug 10 13:18:42 2022
+
+ 
