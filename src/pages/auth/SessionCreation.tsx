@@ -52,19 +52,27 @@ const SessionCreation = () => {
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       const playlist = localStorage.getItem('kachina:selectedPlaylist')!
       const functions = new Functions(window.api)
-  
-      // window.sipapu.Session.claim(playlist, sessionCode, settings)
-      functions.createExecution('claimSession', JSON.stringify({
-        session_id: sessionCode,
-        playlist_id: playlist,
-        user_id: user.$id,
-        settings
-      }))
-        .then(() => {
-          saveSessionCode(sessionCode)
-          window.location.href = '/session/session'
-        })
-        .catch(err => {
+
+      fetch(process.env.REACT_APP_TAWA_URL + 'session/claim', {
+        body: JSON.stringify({
+          session_id: sessionCode,
+          playlist_id: playlist,
+          user_id: user.$id,
+          settings
+        }),
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        method: 'POST'
+      })
+        .then(res => {
+          if (res.status === 200) {
+            saveSessionCode(sessionCode)
+            window.location.href = '/session/session'
+          } else {
+            notify({ title: 'Error', message: `Session ${sessionCode} does not exist or is already claimed`, severity: 'error' })
+          }
+        }).catch(err => {
           notify({ title: 'Error', message: err.message, severity: 'error' })
         })
     })()
