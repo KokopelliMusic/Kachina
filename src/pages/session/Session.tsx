@@ -1,7 +1,6 @@
 import { Box } from '@mui/system'
 import React, { useContext, useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { SessionType } from 'sipapu/dist/src/services/session'
 import { useNotification } from '../../components/Snackbar'
 import SkipNextIcon from '@mui/icons-material/SkipNext'
 import SkipPreviousIcon from '@mui/icons-material/SkipPrevious'
@@ -10,13 +9,12 @@ import HistoryIcon from '@mui/icons-material/History'
 import PlayCircleIcon from '@mui/icons-material/PlayCircle'
 import QueueMusicIcon from '@mui/icons-material/QueueMusic'
 import useRedirect from '../../components/Redirect'
-import { EventTypes } from 'sipapu/dist/src/events'
-import { SongType } from 'sipapu/dist/src/services/song'
 import { Button, Typography, Skeleton } from '@mui/material'
 import PlayerProgressionBar from '../../components/PlayerProgressionBar'
 import Kokopelli from '../../components/Kokopelli'
 import { EventContext } from '../../routers/SessionRouter'
 import { getSessionCode } from '../../data/session'
+import * as sipapu from 'sipapu-2'
 
 const Session = () => {
   const [notify, Snackbar] = useNotification()
@@ -25,22 +23,25 @@ const Session = () => {
   const event              = useContext(EventContext)
   
   const [loading, setLoading]           = useState<boolean>(false)
-  const [session, setSession]           = useState<SessionType>()
-  const [song, setSong]                 = useState<SongType>()
+  const [session, setSession]           = useState<sipapu.Session>()
+  const [song, setSong]                 = useState<sipapu.Song>()
   const [progress, setProgress]         = useState<number>(77)
   const [progInterval, setProgInterval] = useState<NodeJS.Timeout>()
   const [playing, setPlaying]           = useState<boolean>(false)
 
   const skip = () => {
-    window.sipapu.Session.notifyEvent(event.session, EventTypes.SKIP_SONG, {})
+    // window.sipapu.Session.notifyEvent(event.session, EventTypes.SKIP_SONG, {})
+    notify({ title: 'Error', message: 'Not implemented yet!', severity: 'error' })
   }
 
   const playPause = () => {
-    window.sipapu.Session.notifyEvent(event.session, EventTypes.PLAY_PAUSE, {})
+    // window.sipapu.Session.notifyEvent(event.session, EventTypes.PLAY_PAUSE, {})
+    notify({ title: 'Error', message: 'Not implemented yet!', severity: 'error' })
   }
 
   const previous = () => {
-    window.sipapu.Session.notifyEvent(event.session, EventTypes.PREVIOUS_SONG, {})
+    // window.sipapu.Session.notifyEvent(event.session, EventTypes.PREVIOUS_SONG, {})
+    notify({ title: 'Error', message: 'Not implemented yet!', severity: 'error' })
   }
 
   const history = () => redirect('/history')
@@ -50,47 +51,51 @@ const Session = () => {
     if (song) return
 
     const code = getSessionCode()
-    window.sipapu.Session.getCurrentlyPlaying(code)
-      .then(id => window.sipapu.Song.get(id))
-      .then(setSong)
+    window.db.getDocument('session', code)
+      .then(async session => {
+        const song = await window.db.getDocument('song', session.currently_playing)
+        setSong(song as unknown as sipapu.Song)
+        setSession(session as unknown as sipapu.Session)
+      })
       .then(() => setPlaying(true))
+      .catch(err => console.error(err))
   }, [])
 
   useEffect(() => {
     // TODO pak het nummer van de cache ofzo
-    switch (event.eventType) {
+    // switch (event.eventType) {
 
-    case EventTypes.PLAY_SONG:
-      setPlaying(true)
-      setSong((JSON.parse(event.data as unknown as string).song) as SongType)
-      break
+    // case EventTypes.PLAY_SONG:
+    //   setPlaying(true)
+    //   setSong((JSON.parse(event.data as unknown as string).song) as SongType)
+    //   break
 
-    case EventTypes.NEXT_SONG:
-      setPlaying(true)
-      setSong((JSON.parse(event.data as unknown as string).song) as SongType)
-      setProgress(0)
-      break
+    // case EventTypes.NEXT_SONG:
+    //   setPlaying(true)
+    //   setSong((JSON.parse(event.data as unknown as string).song) as SongType)
+    //   setProgress(0)
+    //   break
 
-    case EventTypes.PREVIOUS_SONG:
-      setProgress(0)
-      break
+    // case EventTypes.PREVIOUS_SONG:
+    //   setProgress(0)
+    //   break
     
-    case EventTypes.SONG_FINISHED:
-    case EventTypes.SKIP_SONG:
-      setPlaying(false)
-      setProgress(0)
-      break
+    // case EventTypes.SONG_FINISHED:
+    // case EventTypes.SKIP_SONG:
+    //   setPlaying(false)
+    //   setProgress(0)
+    //   break
 
-    case EventTypes.PLAY_PAUSE:
-      setPlaying(!playing)
-      break
+    // case EventTypes.PLAY_PAUSE:
+    //   setPlaying(!playing)
+    //   break
 
-    default:
-      // Do nothing by default
-      // This is so we do not trigger the useMemo below, which would cause a re-render
-      break
+    // default:
+    //   // Do nothing by default
+    //   // This is so we do not trigger the useMemo below, which would cause a re-render
+    //   break
 
-    }
+    // }
   }, [event])
 
   useEffect(() => {
@@ -226,7 +231,7 @@ const Session = () => {
             <Typography
               noWrap
               variant="body1">
-              {song.artist}
+              {song.artists}
             </Typography>
   
           </Box>
