@@ -31,7 +31,6 @@ const Spotify = () => {
       notify({ title: 'Playlist ID unknown', message: 'Cannot find anything about this playlist, please log out and try again.', severity: 'error' })
     }
 
-    // window.sipapu.Profile.getCurrent()
     (new Account(window.api)).get()
       .then(setProfile)
       .catch(err => notify({ title: 'Error getting profile', message: err.message, severity: 'error' }))
@@ -224,7 +223,12 @@ const AddSongModal = ({ open, setOpen, notify, forceReload, queryResult, playlis
       user_name: profile?.name
     }
 
-    window.db.createDocument('song', 'unique()', song)
+    window.db.createDocument(
+      'song', 
+      'unique()', 
+      song, 
+      ['role:all'],
+      [`user:${profile?.$id}`])
       .then(() => forceReload(true))
       .catch(err => {
         notify({ title: 'Error', message: err.message, severity: 'error' })
