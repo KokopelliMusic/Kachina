@@ -50,17 +50,6 @@ const EditPlaylist = ({ session }: EditPlaylistProps) => {
             setPlaylistId(session.playlist_id)
             setPreload(false)
           })
-        // window.sipapu.Session.get(code)
-        //   .then(session => {
-        //     console.log(session)
-        //     if (session) {
-        //       if (!session.settings.anyoneCanSeePlaylist) {
-        //         setCanSee(false)
-        //       }
-        //       setPlaylistId(session.playlistId)
-        //       setPreload(false)
-        //     }
-        //   })
       }
     } else {
       // React router gives this guarantee
