@@ -1,5 +1,6 @@
 import { Button, Typography } from '@mui/material'
 import { Box } from '@mui/system'
+import { Account } from 'appwrite'
 import React, { useState } from 'react'
 import { useNavigate } from 'react-router'
 import OTP from '../../components/OTP'
@@ -14,17 +15,32 @@ const SessionSelect = () => {
   const navigate = useNavigate()
   const redirect = useRedirect()
 
-  const joinSession = () => {
+  const joinSession = async () => {
     if (code && code.length === 4) {
-      window.sipapu.Session.join(code)
-        .then(() => {
-          saveSessionCode(code)
-          navigate('/session/session')
+      const account = new Account(window.api)
+
+      const user = await account.get()
+
+      fetch(process.env.REACT_APP_TAWA_URL + 'session/join', {
+        body: JSON.stringify({
+          session_id: code,
+          user_id: user.$id
+        }),
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        method: 'POST'
+      })
+        .then(res => {
+          if (res.status === 200) {
+            saveSessionCode(code)
+            navigate('/session/session')
+          } else {
+            notify({ title: 'Session not found', message: 'The given session code does not exist.', severity: 'error' })
+          }
         })
         .catch(err => {
-          if (err.message === 'session is undefined') {
-            notify({ title: 'Session not found', message: 'The session code you entered is invalid', severity: 'error' })
-          }
+          notify({ title: 'Session not found', message: err.message, severity: 'error' })
         })
     } else {
       notify({ title: 'Invalid code', message: 'A session code always has 4 letters', severity: 'info' })
