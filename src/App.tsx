@@ -64,7 +64,6 @@ function App() {
     if (window.location.pathname === '/') {
       if (getSessionCode()) {
         window.location.href = '/session/session'
-      // } else if (window.sipapu.isLoggedIn()) {
       } else if (isLoggedIn) {
         window.location.href = '/auth/session'
       }
