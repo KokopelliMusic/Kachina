@@ -141,11 +141,6 @@ const SignUp = () => {
         console.error(err)
         setSignUpError(err.message)
       })
-
-
-    // window.sipapu.signUp(email, password, username)
-    //   .then(() => navigate('/auth/session'))
-    //   .catch(err => setSignUpError(err.message))
   }
 
   return <Box className="flex flex-col h-screen jusify-between">
@@ -243,10 +238,6 @@ const SignIn = () => {
         window.location.reload()
       })
       .catch(err => setSignUpError(err.message))
-
-    // window.sipapu.signIn(email, password)
-    //   .then(() => navigate('/auth/session'))
-    //   .catch(err => setSignUpError(err.message))
   }
 
   return <Box className="flex flex-col h-screen jusify-between">

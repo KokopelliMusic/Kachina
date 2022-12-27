@@ -4,13 +4,13 @@ import { Button, FormControl, FormGroup, FormControlLabel, FormLabel, Switch, Ra
 import HelpOutlineIcon from '@mui/icons-material/HelpOutline'
 import { useNotification } from '../../components/Snackbar'
 import { NewPlaylistModal, PlaylistItem } from '../Playlists'
-import { Add } from '@mui/icons-material'
+import { Add, } from '@mui/icons-material'
 import Kokopelli from '../../components/Kokopelli'
 import { createSpotifyLink, fetchSpotifyToken } from '../LogIntoSpotify'
 import OTP from '../../components/OTP'
 import { saveSessionCode } from '../../data/session'
 import { Playlist, QueueAlgorithms, SessionSettings, DEFAULT_SETTINGS } from 'sipapu-2'
-import { Account, Functions } from 'appwrite'
+import { Account } from 'appwrite'
 
 // 1. Session settings
 // 2. Playlist selection
@@ -48,16 +48,19 @@ const SessionCreation = () => {
 
       const account = new Account(window.api)
       const user = await account.get()
+      const spotifyDocs = await window.db.listDocuments('spotify')
   
+      const spotify_id = spotifyDocs.documents[0].$id
+
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       const playlist = localStorage.getItem('kachina:selectedPlaylist')!
-      const functions = new Functions(window.api)
 
       fetch(process.env.REACT_APP_TAWA_URL + 'session/claim', {
         body: JSON.stringify({
           session_id: sessionCode,
           playlist_id: playlist,
           user_id: user.$id,
+          spotify_id,
           settings
         }),
         headers: {
@@ -65,7 +68,7 @@ const SessionCreation = () => {
         },
         method: 'POST'
       })
-        .then(res => {
+        .then(async res => {
           if (res.status === 200) {
             saveSessionCode(sessionCode)
             window.location.href = '/session/session'

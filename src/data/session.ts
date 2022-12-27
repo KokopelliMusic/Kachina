@@ -1,3 +1,5 @@
+import { Models } from 'appwrite'
+import { EventTypeEnum, Session } from 'sipapu-2'
 
 export const saveSessionCode = (code: string) => {
   localStorage.setItem('kokopelli:sessionCode', JSON.stringify({
@@ -24,3 +26,26 @@ export const getSessionCode = () => {
   }
   return null
 }
+
+export const emitEvent = (eventType: EventTypeEnum, session: Session, payload: string): Promise<Models.Document> => {
+  const event = {
+    type: eventType,
+    session_id: session.$id,
+    payload: JSON.stringify(payload)
+  }
+
+  console.log('Emitting event: ', event)
+  
+  return window.db.createDocument('event', 'unique()', event)
+
+  // fetch(process.env.REACT_APP_TAWA_URL + 'session/emit', {
+  //   method: 'POST',
+  //   headers: {
+  //     'Content-Type': 'application/json'
+  //   },
+  //   body: JSON.stringify(event)
+  // })
+  //   .then(res => res.json())
+  //   .then(console.log)
+  //   .catch(console.error)
+}  

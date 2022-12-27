@@ -8,7 +8,7 @@ make.exe all --print-data-base --no-builtin-variables --no-builtin-rules --quest
 # Dit programma is gemaakt voor i386-pc-mingw32
  
 
-# Make-gegevensbank, weergegeven op Wed Aug 10 13:18:42 2022
+# Make-gegevensbank, weergegeven op Wed Aug 17 15:44:24 2022
 
 # Variabelen
 
@@ -83,7 +83,7 @@ ELECTRON_RUN_AS_NODE = 1
 # omgeving
 ANDROID_SDK_HOME = C:\Android
 # omgeving
-CHROME_CRASHPAD_PIPE_NAME = \\.\pipe\crashpad_308_DFFDFHTLDVAFTOTU
+CHROME_CRASHPAD_PIPE_NAME = \\.\pipe\crashpad_6744_ZCJRWLPRGPLVEPSB
 # omgeving
 COMPUTERNAME = NIELSPC
 # omgeving
@@ -111,7 +111,8 @@ LOGONSERVER = \\NIELSPC
 # omgeving
 VSCODE_HANDLES_UNCAUGHT_ERRORS = true
 # omgeving
-USERDOMAIN = NIELSPC
+USERDOM 
+AIN = NIELSPC
 # standaard
 MAKE = $(MAKE_COMMAND)
 # standaard
@@ -181,8 +182,7 @@ SYSTEMDRIVE = C:
 # omgeving
 SESSIONNAME = Console
 # omgeving
-PROCESSOR_REVISIO 
-N = 2100
+PROCESSOR_REVISION = 2100
 # omgeving
 MAKELEVEL := 0
 # omgeving
@@ -192,7 +192,7 @@ PROCESSOR_LEVEL = 25
 # omgeving
 FPS_BROWSER_APP_PROFILE_STRING = Internet Explorer
 # omgeving
-VSCODE_PID = 308
+VSCODE_PID = 6744
 # omgeving
 USERDOMAIN_ROAMINGPROFILE = NIELSPC
 # variabele verzameling van hashtabel-statistieken:
@@ -212,7 +212,7 @@ USERDOMAIN_ROAMINGPROFILE = NIELSPC
 # c:\android (sleutel c:/android, wijzigingstijd 1628156941): 8 bestanden, geen onmogelijkheden.
 # kan status van c:\users\niels\appdata\roaming\python\python38\scripts niet opvragen.
 # c:\windows\system32\windowspowershell\v1.0\ (sleutel c:/windows/system32/windowspowershell/v1.0/, wijzigingstijd 1617976099): 30 bestanden, geen onmogelijkheden.
-# c:\windows\system32\wbem (sleutel c:/windows/system32/wbem, wijzigingstijd 1659973113): 169 bestanden, geen onmogelijkheden.
+# c:\windows\system32\wbem (sleutel c:/windows/system32/wbem, wijzigingstijd 1660662597): 169 bestanden, geen onmogelijkheden.
 # . (sleutel c:/Users/Niels/Kachina, wijzigingstijd 1659705633): 25 bestanden, geen onmogelijkheden.
 # C:\Program Files (x86)\NVIDIA Corporation\PhysX\Common (sleutel C:/Program Files (x86)/NVIDIA Corporation/PhysX/Common, wijzigingstijd 1653835260): 10 bestanden, geen onmogelijkheden.
 # c:\programdata\dockerdesktop\version-bin (sleutel c:/programdata/dockerdesktop/version-bin, wijzigingstijd 1645620963): 2 bestanden, geen onmogelijkheden.
@@ -229,7 +229,7 @@ USERDOMAIN_ROAMINGPROFILE = NIELSPC
 # c:\program files\python310\ (sleutel c:/program files/python310/, wijzigingstijd 1638197418): 21 bestanden, geen onmogelijkheden.
 # c:\program files\microsoft vs code\bin (sleutel c:/program files/microsoft vs code/bin, wijzigingstijd 1659775206): 4 bestanden, geen onmogelijkheden.
 # c:\program files\adoptopenjdk\jre-8.0.292.10-hotspot\bin (sleutel c:/program files/adoptopenjdk/jre-8.0.292.10-hotspot/bin, wijzigingstijd 1627673643): 61 bestanden, geen onmogelijkheden.
-# c:\windows (sleutel c:/windows, wijzigingstijd 1659973112): 113 bestanden, geen onmogelijkheden.
+# c:\windows (sleutel c:/windows, wijzigingstijd 1660662596): 113 bestanden, geen onmogelijkheden.
 # c:\program files\python310\scripts\ (sleutel c:/program files/python310/scripts/, wijzigingstijd 1638197619): 9 bestanden, geen onmogelijkheden.
 # C:\Users\Niels\AppData\Roaming\npm (sleutel C:/Users/Niels/AppData/Roaming/npm, wijzigingstijd 1659641399): 57 bestanden, geen onmogelijkheden.
 # c:\env\platform-tools (sleutel c:/env/platform-tools, wijzigingstijd 1628155473): 18 bestanden, geen onmogelijkheden.
@@ -241,13 +241,12 @@ USERDOMAIN_ROAMINGPROFILE = NIELSPC
 # C:\Program Files (x86)\GitHub CLI\ (sleutel C:/Program Files (x86)/GitHub CLI/, wijzigingstijd 1638550216): 3 bestanden, geen onmogelijkheden.
 # C:\Users\Niels\scoop\shims (sleutel C:/Users/Niels/scoop/shims, wijzigingstijd 1641661161): 11 bestanden, geen onmogelijkheden.
 # c:\program files\git\cmd (sleutel c:/program files/git/cmd, wijzigingstijd 1627675073): 8 bestanden, geen onmogelijkheden.
-# c:\windows\system32 (sleutel c:/windows/system32, wijzigingstijd 1660068302): 3027 bestanden, geen onmogelijkheden.
+# c:\windows\system32 (sleutel c:/windows/system32, wijzigingstijd 1660735442): 3027 bestanden, geen onmogelijkheden.
 # C:\Users\Niels\AppData\Local\GitHubDesktop\bin (sleutel C:/Users/Niels/AppData/Local/GitHubDesktop/bin, wijzigingstijd 1636221848): 4 bestanden, geen onmogelijkheden.
 # C:\Users\Niels\AppData\Local\Microsoft\WindowsApps (sleutel C:/Users/Niels/AppData/Local/Microsoft/WindowsApps, wijzigingstijd 1659802438): 21 bestanden, geen onmogelijkheden.
 # c:\program files (x86)\yarn\bin\ (sleutel c:/program files (x86)/yarn/bin/, wijzigingstijd 1641637222): 7 bestanden, geen onmogelijkheden.
 # c:\program files\nvidia corporation\nvidia nvdlisr (sleutel c:/program files/nvidia corporation/nvidia nvdlisr, wijzigingstijd 1653835265): 5 bestanden, geen onmogelijkheden.
-# c:\pro 
-gram files (x86)\gnuwin32\bin (sleutel c:/program files (x86)/gnuwin32/bin, wijzigingstijd 1639216255): 5 bestanden, geen onmogelijkheden.
+# c:\program files (x86)\gnuwin32\bin (sleutel c:/program files (x86)/gnuwin32/bin, wijzigingstijd 1639216255): 5 bestanden, geen onmogelijkheden.
 
 # 4301 bestanden, geen onmogelijkheden in 43 mappen.
 
@@ -337,8 +336,7 @@ generate-resources:
 #  Wijzigingstijd is nooit gecontroleerd.
 #  Bestand is niet bijgewerkt.
 #  uit te voeren opdrachten (van 'makefile', regel 27):
-	npx capacitor-r 
-esources -p android
+	npx capacitor-resources -p android
 	
 
 patch-version:
@@ -357,10 +355,10 @@ lint:
 	npx eslint --ext .js,.jsx,.ts,.tsx --fix src
 	
 
-# hashtabel-statistieken van besta 
+# hashtabel-statistieken van bes 
 make.exe: *** Er is geen regel om doel 'all' te maken.  Gestopt.
 
-nden:
+tanden:
 # Belasting=13/1024=1%, Rehash=0, Botsingen=0/29=0%
 # VPATH-zoekpaden
 
@@ -373,6 +371,6 @@ nden:
 # strcache size: total = 4096 / max = 4096 / min = 4096 / avg = 4096
 # strcache free: total = 4087 / max = 4087 / min = 4087 / avg = 4087
 
-# Make-gegevensbank voltooid op Wed Aug 10 13:18:42 2022
+# Make-gegevensbank voltooid op Wed Aug 17 15:44:24 2022
 
  

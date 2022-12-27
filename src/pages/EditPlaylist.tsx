@@ -326,7 +326,7 @@ const SongDetailModal = ({ open, setOpen, song, notify }: SongDetailModalType) =
         Added by: {song.user_name ?? '...'}
       </DialogContentText>
       <DialogContentText>
-        on: {new Date(song.$createdAt).toLocaleString()}
+        on: {new Date(song.$createdAt * 1000).toLocaleString()}
       </DialogContentText>
 
     </DialogContent>

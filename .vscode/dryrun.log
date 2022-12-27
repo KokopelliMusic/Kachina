@@ -1,6 +1,5 @@
 make.exe --dry-run --always-make --keep-going --print-directory
 make.exe: Map 'c:/Users/Niels/Kachina' wordt binnengegaan
 npx react-scripts start
- 
 make.exe: Map 'c:/Users/Niels/Kachina' wordt verlaten
  

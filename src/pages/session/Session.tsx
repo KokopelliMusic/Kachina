@@ -13,7 +13,7 @@ import { Button, Typography, Skeleton } from '@mui/material'
 import PlayerProgressionBar from '../../components/PlayerProgressionBar'
 import Kokopelli from '../../components/Kokopelli'
 import { EventContext } from '../../routers/SessionRouter'
-import { getSessionCode } from '../../data/session'
+import { emitEvent, getSessionCode } from '../../data/session'
 import * as sipapu from 'sipapu-2'
 
 const Session = () => {
@@ -30,18 +30,24 @@ const Session = () => {
   const [playing, setPlaying]           = useState<boolean>(false)
 
   const skip = () => {
-    // window.sipapu.Session.notifyEvent(event.session, EventTypes.SKIP_SONG, {})
-    notify({ title: 'Error', message: 'Not implemented yet!', severity: 'error' })
+    emitEventWithNotify(sipapu.EventTypeEnum.Skip, 'Skipping...')
   }
 
   const playPause = () => {
-    // window.sipapu.Session.notifyEvent(event.session, EventTypes.PLAY_PAUSE, {})
-    notify({ title: 'Error', message: 'Not implemented yet!', severity: 'error' })
+    emitEventWithNotify(sipapu.EventTypeEnum.PlayPause, 'Skipping...')
   }
 
   const previous = () => {
-    // window.sipapu.Session.notifyEvent(event.session, EventTypes.PREVIOUS_SONG, {})
-    notify({ title: 'Error', message: 'Not implemented yet!', severity: 'error' })
+    emitEventWithNotify(sipapu.EventTypeEnum.Previous, 'Previous...', 'Note: this only seeks to the beginning of the song')
+  }
+
+  const emitEventWithNotify = (type: sipapu.EventTypeEnum, title: string, msg?: string) => {
+    notify({ title, message: msg ?? '', severity: 'success' })
+
+    if (!session) return
+
+    emitEvent(type, session, '')
+      .catch(err => notify({ title: 'Error!', message: err.message, severity: 'error' }))
   }
 
   const history = () => redirect('/history')
@@ -53,8 +59,7 @@ const Session = () => {
     const code = getSessionCode()
     window.db.getDocument('session', code)
       .then(async session => {
-        const song = await window.db.getDocument('song', session.currently_playing)
-        setSong(song as unknown as sipapu.Song)
+        setSong(JSON.parse(session.currently_playing) as sipapu.Song)
         setSession(session as unknown as sipapu.Session)
       })
       .then(() => setPlaying(true))
