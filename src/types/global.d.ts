@@ -4,6 +4,7 @@ declare global {
     namespace NodeJS {
         interface ProcessEnv {
             REACT_APP_TAWA_URL: string;
+            REACT_APP_STATIC_URL: string;
             REACT_APP_SUPABASE_URL: string;
             REACT_APP_SUPABASE_KEY: string;
             REACT_APP_SPOTIFY_SEARCH_STRING: string;
