@@ -1,4 +1,4 @@
-import React, { useEffect }  from 'react'
+import React, { useContext, useEffect }  from 'react'
 import AnonRouter from './routers/AnonRouter'
 import AuthRouter from './routers/AuthRouter'
 import { BrowserRouter, Route, Routes } from 'react-router-dom'
@@ -19,6 +19,7 @@ import Queue from './pages/session/Queue'
 import HistoryElement from './pages/session/History'
 import Settings from './pages/Settings'
 import AppUrlListener from './components/AppUrlListener'
+import { AuthContext } from '.'
 
 export const authPages = {
   playlists:        <AuthRouter element={<Playlists />} pageName="playlists" />,
@@ -50,14 +51,18 @@ export const sessionPages = {
 
 function App() {
 
+  const authContext = useContext(AuthContext)
+
   useEffect(() => {
     // Always scroll to the top!
     document.getElementById('main-div')?.scrollTo(0,0)
   }, [])
 
+  console.log(authContext)
+
   return <BrowserRouter>
     <AppUrlListener />
-    {window.sipapu.isLoggedIn() ?
+    {authContext?.token ?
       <Routes>
         <Route path="/session/">
           <Route path="playlist" element={sessionPages.playlist} />
@@ -83,6 +88,9 @@ function App() {
           <Route path="login/spotify" element={authPages.logIntoSpotify} />
           <Route path="help" element={authPages.help} />
           <Route path="*" element={authPages.notFound} />
+        </Route>
+        <Route path="/">
+          <Route path="" element={authPages.notFound} />
         </Route>
       </Routes> :
       <AnonRouter />

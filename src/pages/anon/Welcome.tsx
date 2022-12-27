@@ -2,6 +2,7 @@ import React, { useEffect } from 'react'
 import { Typography, Button, TextField } from '@mui/material'
 import { Box } from '@mui/system'
 import Caroussel from '../../components/Caroussel'
+import { client } from '../../data/client'
 import { useNavigate } from 'react-router-dom'
 
 const Welcome = () => {
@@ -13,7 +14,6 @@ const Welcome = () => {
   }
 
   const checkHash = (url: string) => {
-    console.log(url)
     const spl = url.split('#')
     if (spl.length < 2) {
       return
@@ -113,7 +113,7 @@ const SignUp = () => {
   const navigate = useNavigate()
 
   const signUp = () => {
-    if (email === '') {
+    if (username === '') {
       setEmailError('Field required')
     }
     if (password === '') {
@@ -123,9 +123,16 @@ const SignUp = () => {
       setUsernameError('Field required')
     }
 
-    window.sipapu.signUp(email, password, username)
-      .then(() => navigate('/auth/session'))
-      .catch(err => setSignUpError(err.message))
+    client.req('register', { email, password, username }, false)
+      .then(res => {
+        client.setToken(res.token)
+        client.setUser(res.user)
+        navigate('/auth/session', { replace: true })
+        location.reload()
+      })
+      .catch(err => {
+        setSignUpError(err.message)
+      })
   }
 
   return <Box className="flex flex-col h-screen jusify-between">
@@ -199,25 +206,32 @@ const SignUp = () => {
 }
 
 const SignIn = () => {
-  const [email, setEmail] = React.useState('')
+  const [username, setUsername] = React.useState('')
   const [password, setPassword] = React.useState('')
-  const [emailError, setEmailError] = React.useState('')
+  const [usernameError, setUsernameError] = React.useState('')
   const [passwordError, setPasswordError] = React.useState('')
   const [signUpError, setSignUpError] = React.useState('')
 
   const navigate = useNavigate()
 
   const signUp = () => {
-    if (email === '') {
-      setEmailError('Field required')
+    if (username === '') {
+      setUsernameError('Field required')
     }
     if (password === '') {
       setPasswordError('Field required')
     }
 
-    window.sipapu.signIn(email, password)
-      .then(() => navigate('/auth/session'))
-      .catch(err => setSignUpError(err.message))
+    client.req('login', { username, password }, false)
+      .then(res => {
+        client.setToken(res.token)
+        client.setUser(res.user)
+        navigate('/auth/session', { replace: true })
+        location.reload()
+      })
+      .catch(err => {
+        setSignUpError(err.message)
+      })
   }
 
   return <Box className="flex flex-col h-screen jusify-between">
@@ -241,13 +255,13 @@ const SignIn = () => {
         }}
         autoComplete="on">
         <TextField
-          label="Email"
+          label="Username"
           variant="outlined"
           className="pt-16"
-          error={!!emailError}
-          helperText={emailError ? emailError : ''}
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
+          error={!!usernameError}
+          helperText={usernameError ?? ''}
+          value={username}
+          onChange={(e) => setUsername(e.target.value)}
         />
 
         <TextField
