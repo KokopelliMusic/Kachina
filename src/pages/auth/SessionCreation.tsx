@@ -1,16 +1,16 @@
 import React, { useEffect, useState } from 'react'
 import { Box } from '@mui/system'
-import { Button, FormControl, FormGroup, FormControlLabel, FormLabel, Switch, Radio, RadioGroup, Typography, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, TextField, Fab, List, Skeleton } from '@mui/material'
-import { SessionSettings, DEFAULT_SETTINGS, QueueAlgorithms } from 'sipapu/dist/src/services/session'
+import { Button, FormControl, FormGroup, FormControlLabel, FormLabel, Switch, Radio, RadioGroup, Typography, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, TextField, Fab, List, Skeleton, Fade } from '@mui/material'
 import HelpOutlineIcon from '@mui/icons-material/HelpOutline'
 import { useNotification } from '../../components/Snackbar'
 import { NewPlaylistModal, PlaylistItem } from '../Playlists'
 import { Add } from '@mui/icons-material'
-import { PlaylistType } from 'sipapu/dist/src/services/playlist'
 import Kokopelli from '../../components/Kokopelli'
 import { createSpotifyLink, fetchSpotifyToken } from '../LogIntoSpotify'
 import OTP from '../../components/OTP'
-import { saveSessionCode } from '../../data/session'
+import { Playlist } from '../../types/tawa'
+import { client, KokopelliSettings, QueueAlgorithms } from '../../data/client'
+import { saveSessionID } from '../../data/session'
 
 // 1. Session settings
 // 2. Playlist selection
@@ -18,16 +18,47 @@ import { saveSessionCode } from '../../data/session'
 // 4. Connect to tv
 // 5. redirect to /session/session
 
+const DEFAULT_SETTINGS: KokopelliSettings = {
+  allow_spotify: true,
+  allow_youtube: true,
+  youtube_only_audio: false,
+
+  allow_events: true,
+  event_frequency: 10,
+  allowed_events: [
+    {
+      name: 'adtrad',
+      pretty_name: 'Wheel of Fortune',
+      active: true,
+    },
+    {
+      name: 'opus',
+      pretty_name: 'Opus',
+      active: true,
+    },
+  ],
+  random_word_list: '[]',
+
+  anyone_can_use_player_controls: true,
+  anyone_can_add_to_queue: true,
+  anyone_can_remove_from_queue: true,
+  anyone_can_see_history: true,
+  anyone_can_see_queue: true,
+  anyone_can_see_playlist: true,
+
+  algorithm_used: 'random',
+
+  allow_guests: true
+}
+
 const SessionCreation = () => {
   const [notify, Snackbar] = useNotification()
 
   const [step, setStep]               = useState<number>(0)
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-  // @ts-ignore
-  const [settings, setSettings]       = useState<SessionSettings>(DEFAULT_SETTINGS)
+  const [settings, setSettings]       = useState<KokopelliSettings>({ ...DEFAULT_SETTINGS })
   const [playlist, setPlaylist]       = useState<number>()
   const [spotifyCode, setSpotifyCode] = useState<string>('')
-  const [sessionCode, setSessionCode] = useState<string>('')
+  const [sessionID, setSessionID]     = useState<string>('')
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search)
@@ -43,19 +74,19 @@ const SessionCreation = () => {
   })
 
   useEffect(() => {
-    if (!sessionCode || sessionCode.length !== 4) return
+    if (!sessionID || sessionID.length !== 4) return
 
     const playlist = Number.parseInt(localStorage.getItem('kachina:selectedPlaylist')!)
 
-    window.sipapu.Session.claim(playlist, sessionCode, settings)
+    client.req('claim_session', { playlist_id: playlist, session_id: sessionID, settings })
       .then(() => {
-        saveSessionCode(sessionCode)
+        saveSessionID(sessionID)
         window.location.href = '/session/session'
       })
       .catch(err => {
         notify({ title: 'Error', message: err.message, severity: 'error' })
       })
-  }, [sessionCode])
+  }, [sessionID])
 
   const next = () => {
     setStep(step + 1)
@@ -67,7 +98,7 @@ const SessionCreation = () => {
     <SetSessionSettings key={0} next={next} setSettings={setSettings} settings={settings} notify={notify} />,
     <PlaylistSelection key={1} next={next} skip={skip} setPlaylist={setPlaylist} settings={settings} notify={notify} />,
     <SpotifyCheck key={2} next={next} code={spotifyCode} notify={notify}/>,
-    <ConnectToTv key={3} next={next} notify={notify} setCode={setSessionCode} />,
+    <ConnectToTv key={3} next={next} notify={notify} setCode={setSessionID} />,
   ]
 
   return <Box id="main-div" className="h-full">
@@ -81,13 +112,13 @@ type Props = {
   key: number
   next: () => void
   skip?: () => void
-  settings?: SessionSettings
+  settings?: KokopelliSettings
   notify: (settings: any) => void
 }
 
 type SetSessionSettingsProps = Props & {
-  settings: SessionSettings
-  setSettings: (settings: SessionSettings) => void
+  settings: KokopelliSettings
+  setSettings: (settings: KokopelliSettings) => void
 }
 
 const SetSessionSettings = ({ next, settings, setSettings, notify }: SetSessionSettingsProps ) => {
@@ -109,7 +140,7 @@ const SetSessionSettings = ({ next, settings, setSettings, notify }: SetSessionS
   const setAlgorithm = (event: React.ChangeEvent<HTMLInputElement>) => {
     setSettings({
       ...settings,
-      algorithmUsed: event.target.value as QueueAlgorithms
+      algorithm_used: event.target.value as QueueAlgorithms
     })
   }
 
@@ -122,7 +153,7 @@ const SetSessionSettings = ({ next, settings, setSettings, notify }: SetSessionS
 
     setSettings({
       ...settings,
-      eventFrequency: num
+      event_frequency: num
     })
   }
 
@@ -130,13 +161,12 @@ const SetSessionSettings = ({ next, settings, setSettings, notify }: SetSessionS
     if (event.target.checked) {
       setSettings({
         ...settings,
-        // @ts-expect-error - TS doesn't know that this is correct
-        allowedEvents: [...settings.allowedEvents, event.target.name]
+        allowed_events: [...settings.allowed_events, DEFAULT_SETTINGS.allowed_events.find(e => e.name === event.target.name)!]
       })
     } else {
       setSettings({
         ...settings,
-        allowedEvents: settings.allowedEvents.filter(e => e !== event.target.name)
+        allowed_events: settings.allowed_events.filter(e => e.name !== event.target.name)
       })
     }
   }
@@ -152,20 +182,27 @@ const SetSessionSettings = ({ next, settings, setSettings, notify }: SetSessionS
 
     setSettings({
       ...settings,
-      randomWordList: a
+      random_word_list: JSON.stringify(a)
     })
   }
 
   const nextStep = () => {
-    if (!settings.allowSpotify && !settings.allowYouTube) {
+    if (!settings.allow_spotify && !settings.allow_youtube) {
       return notify({ title: 'Error', message: 'You must allow at least one source', severity: 'warning' })
     }
 
-    if (settings.randomWordList.length === 0) {
+    if (settings.allowed_events.length === 0) {
+      setSettings({
+        ...settings,
+        allow_events: false
+      })
+    }
+
+    if (settings.random_word_list.length === 0) {
       // Filter out the random-word event if there are no random words
       setSettings({
         ...settings,
-        allowedEvents: settings.allowedEvents.filter(e => e !== 'random-word')
+        allowed_events: settings.allowed_events.filter(e => e.name !== 'random-word')
       })
     }
 
@@ -265,8 +302,8 @@ const SetSessionSettings = ({ next, settings, setSettings, notify }: SetSessionS
   }
 
   // TODO
-  settings.allowYouTube = false
-  settings.algorithmUsed = 'weighted-song'
+  settings.allow_youtube = false
+  settings.algorithm_used = 'weighted-song'
 
   return <Box className="p-4">
     <SettingsInfoModal open={modalOpen} setOpen={setModalOpen} title={modalTitle} info={modalInfo} />
@@ -285,17 +322,17 @@ const SetSessionSettings = ({ next, settings, setSettings, notify }: SetSessionS
       <FormLabel onClick={() => openModal('sources')} color="primary">Sources <HelpOutlineIcon fontSize="small" sx={{ paddingBottom: '2px' }}/></FormLabel>
       <FormGroup className="pb-4">
         <FormControlLabel
-          control={<Switch checked={settings.allowSpotify} onChange={handleChange} name="allowSpotify" />}
+          control={<Switch checked={settings.allow_spotify} onChange={handleChange} name="allow_spotify" />}
           label="Allow Spotify"
         />
         <FormControlLabel
           disabled
-          control={<Switch checked={false /*settings.allowYouTube*/} onChange={handleChange} name="allowYouTube" />}
+          control={<Switch checked={false /*settings.allow_youtube*/} onChange={handleChange} name="allow_youtube" />}
           label="Allow YouTube"
         />
         <FormControlLabel
-          disabled={true /*!settings.allowYouTube*/}
-          control={<Switch checked={settings.youtubeOnlyAudio} onChange={handleChange} name="youtubeOnlyAudio" />}
+          disabled={true /*!settings.allow_youtube*/}
+          control={<Switch checked={settings.youtube_only_audio} onChange={handleChange} name="youtube_only_audio" />}
           label="No video for YouTube"
         />
       </FormGroup>
@@ -304,12 +341,12 @@ const SetSessionSettings = ({ next, settings, setSettings, notify }: SetSessionS
       <FormGroup className="pb-4">
         <FormControlLabel
           disabled
-          control={<Switch checked={settings.anyoneCanUsePlayerControls} onChange={handleChange} name="anyoneCanUsePlayerControls" />}
+          control={<Switch checked={settings.anyone_can_use_player_controls} onChange={handleChange} name="anyone_can_use_player_controls" />}
           label="Anyone can use player controls"
         />
         <FormControlLabel
           disabled
-          control={<Switch checked={false /*settings.anyoneCanAddToQueue*/} onChange={handleChange} name="anyoneCanAddToQueue" />}
+          control={<Switch checked={false /*settings.anyone_can_add_to_queue*/} onChange={handleChange} name="anyone_can_add_to_queue" />}
           label="Allow can add to queue"
         />
       </FormGroup>
@@ -317,17 +354,17 @@ const SetSessionSettings = ({ next, settings, setSettings, notify }: SetSessionS
       <FormLabel onClick={() => openModal('data')} color="primary">Data <HelpOutlineIcon fontSize="small" sx={{ paddingBottom: '2px' }}/></FormLabel>
       <FormGroup className="pb-4">
         <FormControlLabel
-          control={<Switch checked={settings.anyoneCanSeePlaylist} onChange={handleChange} name="anyoneCanSeePlaylist" />}
+          control={<Switch checked={settings.anyone_can_see_playlist} onChange={handleChange} name="anyone_can_see_playlist" />}
           label="Anyone can see the contents of the playlist"
         />
         <FormControlLabel
           disabled
-          control={<Switch checked={false /*settings.anyoneCanSeeQueue*/} onChange={handleChange} name="anyoneCanSeeQueue" />}
+          control={<Switch checked={false /*settings.anyone_can_see_queue*/} onChange={handleChange} name="anyone_can_see_queue" />}
           label="Anyone can see the song queue"
         />
         <FormControlLabel
           disabled
-          control={<Switch checked={false /*settings.anyoneCanSeeHistory*/} onChange={handleChange} name="anyoneCanSeeHistory" />}
+          control={<Switch checked={false /*settings.anyone_can_see_history*/} onChange={handleChange} name="anyone_can_see_history" />}
           label="Anyone can see the song history"
         />
       </FormGroup>
@@ -335,12 +372,12 @@ const SetSessionSettings = ({ next, settings, setSettings, notify }: SetSessionS
       <FormLabel onClick={() => openModal('algorithm')} color="primary">Shuffle Algorithm <HelpOutlineIcon fontSize="small" sx={{ paddingBottom: '2px' }}/></FormLabel>
       <RadioGroup
         className="pb-4"
-        name="algorithmUsed"
-        value={settings.algorithmUsed}
+        name="algorithm_used"
+        value={settings.algorithm_used}
         onChange={setAlgorithm}>
         <FormControlLabel disabled value="modern" control={<Radio />} label="Modern" />
         <FormControlLabel disabled value="classic" control={<Radio />} label="Classic" />
-        <FormControlLabel value="random" control={<Radio />} label="Random" />
+        <FormControlLabel disabled value="random" control={<Radio />} label="Random" />
         <FormControlLabel value="weighted-song" control={<Radio />} label="Weighted Song" />
       </RadioGroup>
     </FormControl>
@@ -348,30 +385,29 @@ const SetSessionSettings = ({ next, settings, setSettings, notify }: SetSessionS
     <FormLabel onClick={() => openModal('events')} color="primary">Events <HelpOutlineIcon fontSize="small" sx={{ paddingBottom: '2px' }}/></FormLabel>
     <FormGroup className="pb-4">
       <FormControlLabel
-        control={<Switch checked={settings.allowEvents} onChange={handleChange} name="allowEvents" />}
+        control={<Switch checked={settings.allow_events} onChange={handleChange} name="allow_events" />}
         label="Allow Events"
       />
       <FormControlLabel
-        disabled={!settings.allowEvents}
-        control={<Switch checked={settings.allowedEvents.includes('adtrad')} onChange={setAllowedEvents} name="adtrad" />}
+        disabled={!settings.allow_events}
+        control={<Switch checked={!!settings.allowed_events.find(e => e.name === 'adtrad')} onChange={setAllowedEvents} name="adtrad" />}
         label="Enable the Wheel of Fortune game"
       />
       <FormControlLabel
-        disabled
-        // disabled={!settings.allowEvents}
-        control={<Switch checked={settings.allowedEvents.includes('opus')} onChange={setAllowedEvents} name="opus" />}
+        disabled={!settings.allow_events}
+        control={<Switch checked={!!settings.allowed_events.find(e => e.name === 'opus')} onChange={setAllowedEvents} name="opus" />}
         label="Enable Opus"
       />
       <FormControlLabel
         disabled
         // disabled={!settings.allowEvents}
-        control={<Switch checked={settings.allowedEvents.includes('random-word')} onChange={setAllowedEvents} name="random-word" />}
+        control={<Switch checked={!!settings.allowed_events.find(e => e.name === 'random-word')} onChange={setAllowedEvents} name="random-word" />}
         label="Enable the Random Word game"
       />
       <TextField 
         variant="standard"
-        disabled={!settings.allowEvents}
-        value={settings.eventFrequency}
+        disabled={!settings.allow_events}
+        value={settings.event_frequency}
         className="w-1/2"
         onChange={setEventFrequency}
         type="number"
@@ -379,7 +415,7 @@ const SetSessionSettings = ({ next, settings, setSettings, notify }: SetSessionS
         label="Event Frequency"/>
       <TextField
         variant="standard"
-        disabled={!settings.allowEvents || !settings.allowedEvents.includes('random-word')}
+        disabled={!settings.allow_events || !settings.allowed_events.find(e => e.name === 'random-word')}
         value={randomWordList}
         className="w-11/12"
         onChange={randomWordListChange}
@@ -416,14 +452,14 @@ type PlaylistSelectionProps = Props & {
 }
 
 const PlaylistSelection = ({ next, skip, setPlaylist, settings, notify }: PlaylistSelectionProps) => {
-  const [playlists, setPlaylists]     = useState<PlaylistType[]>([])
+  const [playlists, setPlaylists]     = useState<Playlist[]>([])
   const [loading, setLoading]         = useState(true)
   const [openModal, setOpenModal]     = useState(false)
   const [forceReload, setForceReload] = useState(false)
   const [spotify, setSpotify]         = useState(false)
 
   useEffect(() => {
-    window.sipapu.Spotify.get()
+    client.req('get_spotify', {})
       .then(s => setSpotify(!!s))
       .catch(() => setSpotify(false))
   }, [])
@@ -432,7 +468,7 @@ const PlaylistSelection = ({ next, skip, setPlaylist, settings, notify }: Playli
     if (forceReload) {
       setForceReload(false)
     }
-    window.sipapu.Playlist.getAllFromUser()
+    client.req('get_own_playlists', {})
       .then(setPlaylists)
       .then(() => setLoading(false))
       .catch(err => {
@@ -443,7 +479,7 @@ const PlaylistSelection = ({ next, skip, setPlaylist, settings, notify }: Playli
   const selectPlaylist = (id: number) => {
     setPlaylist(id)
     localStorage.setItem('kachina:selectedPlaylist', '' + id)
-    if (spotify || !settings?.allowSpotify) {
+    if (spotify || !settings?.allow_spotify) {
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       return skip!()
     }
@@ -469,35 +505,39 @@ const PlaylistSelection = ({ next, skip, setPlaylist, settings, notify }: Playli
     return <Box className="h-4/6 flex items-center p-4">
       <div>
         <NewPlaylistModal open={openModal} setOpen={setOpenModal} notify={notify} forceReload={setForceReload} />
-        <Typography
-          className="pt-4"
-          variant="h5">
-          Step 2: Playlist Selection
-        </Typography>
+        <Fade in={true} timeout={250}>
+          <Box>
+            <Typography
+              className="pt-4"
+              variant="h5">
+              Step 2: Playlist Selection
+            </Typography>
 
-        <Typography
-          variant="body1"
-          className="pb-2">
-          Now select the playlist you want to use for the music.
-        </Typography>
-      
-        <Typography
-          className="text-center w-full pt-4 px-8"
-          variant="h4"
-          component="h1">
-          You do not have any playlists yet.
-        </Typography>
+            <Typography
+              variant="body1"
+              className="pb-2">
+              Now select the playlist you want to use for the music.
+            </Typography>
+          
+            <Typography
+              className="text-center w-full pt-4 px-8"
+              variant="h4"
+              component="h1">
+              You do not have any playlists yet.
+            </Typography>
 
-        <Typography
-          className="text-center w-full pt-4 px-8"
-          variant="h6"
-          component="h1">
-          Make your first playlist with the + button below.
-        </Typography>
-      
-        <div className="center w-full">
-          <Kokopelli height={250} />
-        </div>
+            <Typography
+              className="text-center w-full pt-4 px-8"
+              variant="h6"
+              component="h1">
+              Make your first playlist with the + button below.
+            </Typography>
+          
+            <div className="center w-full">
+              <Kokopelli height={250} />
+            </div>
+          </Box>
+        </Fade>
 
         <div className="fixed bottom-20 right-6">
           <Fab color="primary" onClick={() => setOpenModal(true)} >
@@ -510,26 +550,30 @@ const PlaylistSelection = ({ next, skip, setPlaylist, settings, notify }: Playli
 
   return <Box className="w-full">
     <NewPlaylistModal open={openModal} setOpen={setOpenModal} notify={notify} forceReload={setForceReload} />
-    <Typography
-      className="px-4 pt-4"
-      variant="h5">
-      Step 2: Playlist Selection
-    </Typography>
+    <Fade in={true} timeout={250}>
+      <Box>
+        <Typography
+          className="px-4 pt-4"
+          variant="h5">
+          Step 2: Playlist Selection
+        </Typography>
 
-    <Typography
-      variant="body1"
-      className="px-4 py-2">
-      Now select the playlist you want to use for the music.
-    </Typography>
+        <Typography
+          variant="body1"
+          className="px-4 py-2">
+          Now select the playlist you want to use for the music.
+        </Typography>
 
-    <main className="mb-auto flex flex-col items-center scroll">
+        <main className="mb-auto flex flex-col items-center scroll">
 
-      <List sx={{ width: '100%' }}>
-        {playlists.map(playlist => (<div key={playlist.id}>
-          <PlaylistItem onClick={() => selectPlaylist(playlist.id)} playlist={playlist}/>
-        </div>))}
-      </List>
-    </main>
+          <List sx={{ width: '100%' }}>
+            {playlists.map(playlist => (<div key={playlist.id}>
+              <PlaylistItem onClick={() => selectPlaylist(playlist.id)} playlist={playlist}/>
+            </div>))}
+          </List>
+        </main>
+      </Box>
+    </Fade>
 
 
     <div className="fixed bottom-20 right-6">
@@ -559,7 +603,7 @@ const SpotifyCheck = ({ next, code, notify }: SpotifyCheckProps) => {
   useEffect(() => {
     console.log('code', code)
 
-    window.sipapu.Spotify.get()
+    client.req('get_spotify', {})
       .then(s => {
         if (s) {
           next()
