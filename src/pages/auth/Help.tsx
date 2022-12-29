@@ -3,7 +3,7 @@ import React from 'react'
 
 const Help = () => {
   return <Box>
-    TODO: Help screen
+    lmao knal maar mailtje naar kokopelli@nierot.com
   </Box>
 }
 
