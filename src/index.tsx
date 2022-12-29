@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 import ReactDOM from 'react-dom'
 import './index.css'
 import App from './App'
@@ -14,40 +14,37 @@ const Context = React.createContext<Session | null>(null)
 
 type AuthSession = {
   token: string,
+  valid: boolean,
   user: {
-    id: string,
+    id: number,
     username: string,
     profile_picture: string
   }
 }
 
-export const AuthContext = React.createContext<AuthSession | null>(null)
-
 const Index = () => {
-  const [session, setSession] = React.useState<AuthSession | null>(null)
+
+  const [auth, setAuth]       = useState<boolean>(false)
+  const [loading, setLoading] = useState<boolean>(true)
 
   useEffect(() => {
 
-    if (session) return
-
-    const token = client.getToken()
-    const user = client.getUser()
-      .then(user => {
-        console.log(user)
-        if (token && user) {
-          setSession({
-            token,
-            user
-          })
-        }
-      }).catch(err => {
-        console.error(err)
+    client.req('get_user', {})
+      .then(res => {
+        console.log('Logged in')
+        setAuth(true)
       })
+      .catch(err => {
+        console.log('Not logged in')
+        setAuth(false)
+      })
+      .finally(() => setLoading(false))
 
     // TODO: Set session
 
 
     // setSession(window.sipapu.client.auth.session())
+
 
     // const path = window.location.pathname
     // const code = getSessionCode()
@@ -67,9 +64,11 @@ const Index = () => {
     // window.sipapu.client.auth.onAuthStateChange((_event, session) => setSession(session))
   }, [])
 
-  return <AuthContext.Provider value={session}>
-    <App />
-  </AuthContext.Provider>
+  if (loading) {
+    return null
+  }
+
+  return <App auth={auth}/>
 }
 
 const theme = createTheme({
