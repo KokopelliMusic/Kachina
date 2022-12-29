@@ -1,25 +1,25 @@
 
-export const saveSessionCode = (code: string) => {
-  localStorage.setItem('kokopelli:sessionCode', JSON.stringify({
+export const saveSessionID = (id: string) => {
+  localStorage.setItem('kachina::session_id', JSON.stringify({
     timeSet: (new Date()).getTime(),
-    code
+    id
   }))
 }
 
 export const leaveSession = () => {
-  localStorage.removeItem('kokopelli:sessionCode')
-  window.location.href = '/'
+  localStorage.removeItem('kachina::session_id')
+  window.location.href = '/auth/session'
 }
 
-export const getSessionCode = () => {
-  const item = localStorage.getItem('kokopelli:sessionCode')
+export const getSessionID = () => {
+  const item = localStorage.getItem('kachina::session_id')
 
   if (item) {
     const obj = JSON.parse(item)
 
     // if the session code is older than 24 hours, remove it
     if (obj.timeSet + (1000 * 60 * 60 * 24) > (new Date()).getTime()) {
-      return obj.code
+      return obj.id
     }
   }
   return null
