@@ -6,7 +6,7 @@ import { ProfileType } from 'sipapu/dist/src/services/profile'
 import { useNotification } from '../components/Snackbar'
 import { SpotifyType } from 'sipapu/dist/src/services/spotify'
 import useRedirect from '../components/Redirect'
-import { getSessionCode, leaveSession } from '../data/session'
+import { getSessionID, leaveSession } from '../data/session'
 
 type ProfileProps = {
   canLoginToSpotify?: boolean
@@ -187,7 +187,7 @@ const Profile = ({ canLoginToSpotify }: ProfileProps) => {
 
       <Box className="w-full center pt-4"><Divider className="w-11/12" /></Box>
 
-      {getSessionCode() ? <Box className="w-full pt-4">
+      {getSessionID() ? <Box className="w-full pt-4">
         <Typography
           variant="h6"
           className="pl-4 pb-2">
@@ -203,7 +203,7 @@ const Profile = ({ canLoginToSpotify }: ProfileProps) => {
         <Typography
           variant="body1"
           className="w-full text-center">
-          Session code: {getSessionCode()}
+          Session code: {getSessionID()}
         </Typography>
 
         <Box className="w-full center pt-2">
