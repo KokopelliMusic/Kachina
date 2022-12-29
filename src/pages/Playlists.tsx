@@ -1,5 +1,5 @@
 import { Box } from '@mui/system'
-import { Dialog, DialogActions, Button, DialogContent, DialogContentText, DialogTitle, Fab, List, ListItem, ListItemAvatar, ListItemButton, ListItemText, Skeleton, TextField, Typography } from '@mui/material'
+import { Dialog, DialogActions, Button, DialogContent, DialogContentText, DialogTitle, Fab, List, ListItem, ListItemAvatar, ListItemButton, ListItemText, Skeleton, TextField, Typography, Fade } from '@mui/material'
 import React, { useEffect } from 'react'
 import { Add } from '@mui/icons-material'
 import QueueMusicIcon from '@mui/icons-material/QueueMusic'
@@ -19,13 +19,15 @@ const Playlists = () => {
   const [forceReload, setForceReload] = React.useState(false)
   const [notify, Snackbar]            = useNotification()
 
+  const load = () => setTimeout(() => setLoading(false), 500)
+
   useEffect(() => {
     if (forceReload) {
       setForceReload(false)
     }
     client.req('get_playlists', {})
       .then(setPlaylists)
-      .then(() => setLoading(false))
+      .then(load)
       .catch(err => {
         notify({ title: 'Error', message: err.message, severity: 'error' })
       })
@@ -81,14 +83,16 @@ const Playlists = () => {
   return <Box className="w-full h-full">
     <Snackbar />
     <NewPlaylistModal open={openModal} setOpen={setOpenModal} notify={notify} forceReload={setForceReload} />
-    <main className="mb-auto flex flex-col items-center scroll">
-      <List sx={{ width: '100%' }}>
-        {playlists.map(playlist => (<div key={playlist.id}>
-          <PlaylistItem playlist={playlist}/>
-        </div>))}
-      </List>
-      <div className="mt-28" />
-    </main>
+    <Fade in={true} timeout={250}>
+      <main className="mb-auto flex flex-col items-center scroll">
+        <List sx={{ width: '100%' }}>
+          {playlists.map(playlist => (<div key={playlist.id}>
+            <PlaylistItem playlist={playlist}/>
+          </div>))}
+        </List>
+        <div className="mt-28" />
+      </main>
+    </Fade>
 
 
     <div className="fixed bottom-20 right-6">
