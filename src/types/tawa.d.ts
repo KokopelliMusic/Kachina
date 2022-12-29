@@ -16,7 +16,7 @@ export type PlaylistWithSongs = Playlist & {
 export type SongType = 'spotify' | 'youtube' | 'soundcloud' | 'mp3'
 
 export type Song = {
-  id: number
+  id?: number
   title: string
   artists: string
   album: string
@@ -24,6 +24,8 @@ export type Song = {
   cover: string
   added_by: User
   song_type: string
+  platform_id: string
+  playlist_id: number
 }
 
 export type User = {
