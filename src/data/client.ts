@@ -86,14 +86,14 @@ class JsonRPCClient {
       // Otherwise, check with the server
     }
 
-    try {
-      await this.req('get_user', {})
-      this.setTokenValid(true)
-      return true
-    } catch (err) {
-      this.setTokenValid(false)
-      return false
-    }
+    return await this.req('get_user', {})
+      .then(() => {
+        this.setTokenValid(true)
+        return true
+      }).catch(() => {
+        this.setTokenValid(false)
+        return false
+      })
   }
 
   setTokenValid = (tokenValid: boolean) => {
@@ -109,5 +109,48 @@ type TokenValid = {
   tokenValid: boolean,
   timestamp: number
 }
+
+export type KokopelliSettings = {
+  allow_spotify: boolean
+  allow_youtube: boolean
+  youtube_only_audio: boolean
+
+  allow_events: boolean
+  event_frequency: number
+  allowed_events: KokopelliEvent[]
+  random_word_list: string
+
+  anyone_can_use_player_controls: boolean
+  anyone_can_add_to_queue: boolean
+  anyone_can_remove_from_queue: boolean
+  anyone_can_see_history: boolean
+  anyone_can_see_queue: boolean
+  anyone_can_see_playlist: boolean
+
+  algorithm_used: string
+
+  allow_guests: boolean
+}
+
+export type KokopelliEvent = {
+  name: string
+  pretty_name: string
+  active: boolean
+}
+
+/**
+ * All queueing algorithms the user can choose from
+ * <pre></pre>
+ * 'classic' is the default and classic Kokopelli experience, weighted random on user
+ * First the algorithm chooses an random user, then it uses weighted-song to select from the user's queue
+ * <pre></pre>
+ * 'modern' assigns weights to each user (based on how many times they have played), and then uses weighted-song to select from the user's queue
+ * basically the classic algo but better
+ * <pre></pre>
+ * 'random' is pure random (garbage)
+ * <pre></pre>
+ * 'weighted-song' assignes weights to each song in the queue (based on how many times it has been played), and selects a song with the lowest weight (random if multiple with same weight)
+ */
+export type QueueAlgorithms = 'classic' | 'modern' | 'random' | 'weighted-song';
 
 export const client = new JsonRPCClient()
