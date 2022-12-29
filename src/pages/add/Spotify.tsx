@@ -7,8 +7,8 @@ import { useParams } from 'react-router-dom'
 import useRedirect from '../../components/Redirect'
 import { useNotification } from '../../components/Snackbar'
 import Kokopelli from '../../components/Kokopelli'
-import { SongEnum } from 'sipapu/dist/src/services/song'
-import { ProfileType } from 'sipapu/dist/src/services/profile'
+import { client } from '../../data/client'
+import { Song, User } from '../../types/tawa'
 
 
 // TODO:
@@ -19,8 +19,8 @@ const Spotify = () => {
   const params              = useParams()
   const [notify, Snackbar]  = useNotification()
   
-  const [query, setQuery]                   = useState('')
-  const [profile, setProfile] = useState<ProfileType>()
+  const [query, setQuery]   = useState('')
+  const [user, setUser]     = useState<User>()
 
 
   // The query is debounced so that we don't make too many requests to the Spotify API
@@ -31,8 +31,8 @@ const Spotify = () => {
       notify({ title: 'Playlist ID unknown', message: 'Cannot find anything about this playlist, please log out and try again.', severity: 'error' })
     }
 
-    window.sipapu.Profile.getCurrent()
-      .then(setProfile)
+    client.req('get_user', {})
+      .then(setUser)
       .catch(err => notify({ title: 'Error getting profile', message: err.message, severity: 'error' }))
   }, [])
 
@@ -55,17 +55,17 @@ const Spotify = () => {
     <SearchPage 
       query={query}
       notify={notify}
-      profile={profile!} />
+      user={user!} />
   </Box>
 }
 
 type SearchPageProps = {
   query: string
   notify: (settings: any) => void
-  profile: ProfileType
+  user: User
 }
 
-const SearchPage = ({ query, notify, profile }: SearchPageProps) => {
+const SearchPage = ({ query, notify, user }: SearchPageProps) => {
   const params   = useParams()
   const redirect = useRedirect()
 
@@ -131,7 +131,7 @@ const SearchPage = ({ query, notify, profile }: SearchPageProps) => {
         forceReload={setForceReload} 
         queryResult={selectedResult} 
         playlistId={parseInt(params.id!)} 
-        profile={profile}/>
+        user={user}/>
 
       <div className="pb-2">
         <List>
@@ -199,29 +199,30 @@ type AddSongModalProps = {
   notify: (notification: { title: string, message: string, severity: 'error' | 'success' }) => void
   forceReload: (force: boolean) => void
   playlistId: number
-  profile: ProfileType | undefined
+  user: User
   queryResult: any
 }
 
-const AddSongModal = ({ open, setOpen, notify, forceReload, queryResult, playlistId, profile }: AddSongModalProps) => {
+const AddSongModal = ({ open, setOpen, notify, forceReload, queryResult, playlistId, user }: AddSongModalProps) => {
   const handleClose = () => setOpen(false)
 
-  const artist = queryResult.artists?.map((artist: { name: string }) => artist.name).join(', ') ?? 'Unknown Artist'
+  const artists = queryResult.artists?.map((artist: { name: string }) => artist.name).join(', ') ?? 'Unknown Artist'
 
   const create = () => {
-  
-    window.sipapu.Song.createSpotify({
+
+    const song: Song = {
       title: queryResult.name,
-      platformId: queryResult.id,
-      addedBy: profile!.id,
-      playlistId: playlistId,
-      queryResult,
-      songType: SongEnum.SPOTIFY,
-      artist,
+      platform_id: queryResult.id,
+      added_by: user!,
+      playlist_id: playlistId,
+      song_type: 'spotify',
+      artists,
       cover: queryResult.album.images[0].url ?? '/missing.jpg',
       length: queryResult.duration_ms,
-      album: queryResult.album.name,      
-    })
+      album: queryResult.album.name,
+    }
+  
+    client.req('add_song_to_playlist', song)
       .then(() => forceReload(true))
       .catch(err => {
         notify({ title: 'Error', message: err.message, severity: 'error' })
@@ -235,7 +236,7 @@ const AddSongModal = ({ open, setOpen, notify, forceReload, queryResult, playlis
 
     <DialogContent>
       <DialogContentText>
-        Do you want to add {queryResult.name} by {artist} from {queryResult.album.name} to this playlist?
+        Do you want to add {queryResult.name} by {artists} from {queryResult.album.name} to this playlist?
       </DialogContentText>
 
     </DialogContent>
