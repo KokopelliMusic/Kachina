@@ -1,7 +1,6 @@
 import { Box } from '@mui/system'
 import React, { useContext, useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { SessionType } from 'sipapu/dist/src/services/session'
 import { useNotification } from '../../components/Snackbar'
 import SkipNextIcon from '@mui/icons-material/SkipNext'
 import SkipPreviousIcon from '@mui/icons-material/SkipPrevious'
@@ -10,13 +9,15 @@ import HistoryIcon from '@mui/icons-material/History'
 import PlayCircleIcon from '@mui/icons-material/PlayCircle'
 import QueueMusicIcon from '@mui/icons-material/QueueMusic'
 import useRedirect from '../../components/Redirect'
-import { EventTypes } from 'sipapu/dist/src/events'
-import { SongType } from 'sipapu/dist/src/services/song'
 import { Button, Typography, Skeleton } from '@mui/material'
 import PlayerProgressionBar from '../../components/PlayerProgressionBar'
 import Kokopelli from '../../components/Kokopelli'
 import { EventContext } from '../../routers/SessionRouter'
-import { getSessionCode } from '../../data/session'
+import { getSessionID } from '../../data/session'
+import { client } from '../../data/client'
+import { Song } from '../../types/tawa'
+
+// TODO skeleton loading
 
 const Session = () => {
   const [notify, Snackbar] = useNotification()
@@ -25,22 +26,21 @@ const Session = () => {
   const event              = useContext(EventContext)
   
   const [loading, setLoading]           = useState<boolean>(false)
-  const [session, setSession]           = useState<SessionType>()
-  const [song, setSong]                 = useState<SongType>()
+  const [song, setSong]                 = useState<Song>()
   const [progress, setProgress]         = useState<number>(77)
   const [progInterval, setProgInterval] = useState<NodeJS.Timeout>()
   const [playing, setPlaying]           = useState<boolean>(false)
 
   const skip = () => {
-    window.sipapu.Session.notifyEvent(event.session, EventTypes.SKIP_SONG, {})
+    client.pushEvent('skip_song', {})
   }
 
   const playPause = () => {
-    window.sipapu.Session.notifyEvent(event.session, EventTypes.PLAY_PAUSE, {})
+    client.pushEvent('play_pause', {})
   }
 
   const previous = () => {
-    window.sipapu.Session.notifyEvent(event.session, EventTypes.PREVIOUS_SONG, {})
+    client.pushEvent('previous_song', {})
   }
 
   const history = () => redirect('/history')
@@ -49,39 +49,32 @@ const Session = () => {
   useEffect(() => {
     if (song) return
 
-    const code = getSessionCode()
-    window.sipapu.Session.getCurrentlyPlaying(code)
-      .then(id => window.sipapu.Song.get(id))
-      .then(setSong)
+    const session_id = getSessionID()
+    client.req('get_currently_playing', { session_id })
+      .then(res => setSong(res.song))
       .then(() => setPlaying(true))
   }, [])
 
   useEffect(() => {
     // TODO pak het nummer van de cache ofzo
-    switch (event.eventType) {
+    switch (event.event_type) {
 
-    case EventTypes.PLAY_SONG:
+    case 'play_song':
       setPlaying(true)
-      setSong((JSON.parse(event.data as unknown as string).song) as SongType)
+      setSong((event.data as Record<string, Song>)['song'] as Song)
       break
 
-    case EventTypes.NEXT_SONG:
-      setPlaying(true)
-      setSong((JSON.parse(event.data as unknown as string).song) as SongType)
-      setProgress(0)
-      break
-
-    case EventTypes.PREVIOUS_SONG:
+    case 'previous_song':
       setProgress(0)
       break
     
-    case EventTypes.SONG_FINISHED:
-    case EventTypes.SKIP_SONG:
+    case 'song_finished':
+    case 'skip_song':
       setPlaying(false)
       setProgress(0)
       break
 
-    case EventTypes.PLAY_PAUSE:
+    case 'play_pause':
       setPlaying(!playing)
       break
 
@@ -226,7 +219,7 @@ const Session = () => {
             <Typography
               noWrap
               variant="body1">
-              {song.artist}
+              {song.artists}
             </Typography>
   
           </Box>
