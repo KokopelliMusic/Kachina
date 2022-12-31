@@ -1,3 +1,6 @@
+import { Event, EventTypes } from '../types/tawa'
+import { getSessionID } from './session'
+
 class JsonRPCClient {
   
   default = {
@@ -103,54 +106,60 @@ class JsonRPCClient {
     }))
   }
 
+  pushEvent = (eventType: EventTypes, data: Record<string, unknown>, sessionID?: string) => {
+    if (!sessionID) {
+      sessionID = getSessionID()
+    }
+
+    this.req('push_event', {
+      session_id: sessionID,
+      client_type: 'kachina',
+      event_type: eventType,
+      date: new Date().toUTCString(),
+      data,
+    })
+  }
+
 }
 
 type TokenValid = {
   tokenValid: boolean,
   timestamp: number
 }
+export class WSClient {
 
-export type KokopelliSettings = {
-  allow_spotify: boolean
-  allow_youtube: boolean
-  youtube_only_audio: boolean
+  url: string
+  // @ts-expect-error WebSocket is defined in connect() and that is called in the constructor
+  ws: WebSocket
 
-  allow_events: boolean
-  event_frequency: number
-  allowed_events: KokopelliEvent[]
-  random_word_list: string
+  constructor(sessionID: string, cb: (data: Event) => void) {
+    this.url = `${process.env.REACT_APP_TAWA_WS}/session/${sessionID}/`
+    this.connect(cb)
+  }
 
-  anyone_can_use_player_controls: boolean
-  anyone_can_add_to_queue: boolean
-  anyone_can_remove_from_queue: boolean
-  anyone_can_see_history: boolean
-  anyone_can_see_queue: boolean
-  anyone_can_see_playlist: boolean
+  connect(cb: (data: Event) => void) {
+    this.ws = new WebSocket(this.url)
+    
+    this.ws.onmessage = (e) => {
+      const data = JSON.parse(e.data)
+      cb(data)
+    }
 
-  algorithm_used: string
+    this.ws.onerror = (e => {
+      console.error('WebSocket encountered error: ', e)
+      this.ws.close()
+    })
 
-  allow_guests: boolean
+    this.ws.onclose = (e => {
+      console.log('Socket is closed, attempting reconnect.', e)
+
+      setTimeout(() => this.connect(cb), 1000)
+    })
+  }
+
+  close() {
+    this.ws.close()
+  }
 }
-
-export type KokopelliEvent = {
-  name: string
-  pretty_name: string
-  active: boolean
-}
-
-/**
- * All queueing algorithms the user can choose from
- * <pre></pre>
- * 'classic' is the default and classic Kokopelli experience, weighted random on user
- * First the algorithm chooses an random user, then it uses weighted-song to select from the user's queue
- * <pre></pre>
- * 'modern' assigns weights to each user (based on how many times they have played), and then uses weighted-song to select from the user's queue
- * basically the classic algo but better
- * <pre></pre>
- * 'random' is pure random (garbage)
- * <pre></pre>
- * 'weighted-song' assignes weights to each song in the queue (based on how many times it has been played), and selects a song with the lowest weight (random if multiple with same weight)
- */
-export type QueueAlgorithms = 'classic' | 'modern' | 'random' | 'weighted-song';
 
 export const client = new JsonRPCClient()
