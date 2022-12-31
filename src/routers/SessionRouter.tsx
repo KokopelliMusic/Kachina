@@ -8,9 +8,10 @@ import AccountCircleIcon from '@mui/icons-material/AccountCircle'
 import { Box } from '@mui/system'
 import { Link, useNavigate } from 'react-router-dom'
 import useRedirect from '../components/Redirect'
-import { getSessionCode } from '../data/session'
+import { getSessionID } from '../data/session'
 import { useNotification } from '../components/Snackbar'
-import { Event } from 'sipapu/dist/src/events'
+import { Event } from '../types/tawa'
+import { WSClient } from '../data/client'
 
 type SessionRouterProps = {
   element: React.ReactNode
@@ -18,8 +19,7 @@ type SessionRouterProps = {
   pageName: string
 }
 
-
-// @ts-expect-error This is necessary since React does not use the default value, when it is passed in the Provider, which we do.
+// @ts-expect-error je moeder
 export const EventContext = React.createContext<Event>(undefined)
 
 /**
@@ -30,12 +30,12 @@ const SessionRouter = ({ element, elevation, pageName }: SessionRouterProps) => 
   const navigate            = useNavigate()
   const [notify, Snackbar]  = useNotification()
 
-  const [code, setCode]     = useState<string>('')
-  const [event, setEvent]   = useState<Event>({
-    session: getSessionCode(),
-    clientType: 'kachina',
-    eventType: 'generic',
-    date: new Date().getTime(),
+  const [sessionID, setSessionID] = useState<string>('')
+  const [event, setEvent]         = useState<Event>({
+    session_id: getSessionID(),
+    client_type: 'kachina',
+    event_type: 'generic',
+    date: new Date().toUTCString(),
     data: { error: false },
   })
 
@@ -44,23 +44,26 @@ const SessionRouter = ({ element, elevation, pageName }: SessionRouterProps) => 
   }
 
   useEffect(() => {
-    const code = getSessionCode()
+    const sessionID = getSessionID()
 
-    if (!code) {
+    if (!sessionID) {
       notify({ title: 'Catastophic Failure', message: 'The session is invalid or expired, sending you back to home in 5 seconds', severity: 'error' })
       setTimeout(() => navigate('/auth/session'), 5000)
       return
     }
 
-    const close = window.sipapu.Session.watch(code, e => setEvent(e))
+    const client = new WSClient(sessionID, setEvent)
 
-    setCode(code)
+    setSessionID(sessionID)
     // close the connection with the backend
     return () => {
-      const fun = async () => (await close)()
-      fun()
+      client.close()
     }
   }, [])
+
+  useEffect(() => {
+    console.log('New event: ', event)
+  }, [event])
 
   return <EventContext.Provider value={event}>
     <Snackbar />
