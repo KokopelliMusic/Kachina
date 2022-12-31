@@ -2,15 +2,11 @@ import React, { useEffect, useState } from 'react'
 import ReactDOM from 'react-dom'
 import './index.css'
 import App from './App'
-import { Sipapu } from 'sipapu'
-import { Session } from '@supabase/gotrue-js'
 import { purple } from '@mui/material/colors'
 import { createTheme, ThemeProvider } from '@mui/material'
 import { StatusBar } from '@capacitor/status-bar'
 import { client } from './data/client'
-
-window.sipapu = new Sipapu('kachina', process.env.REACT_APP_SUPABASE_URL, process.env.REACT_APP_SUPABASE_KEY, process.env.REACT_APP_TAWA_URL)
-const Context = React.createContext<Session | null>(null)
+import { getSessionID } from './data/session'
 
 type AuthSession = {
   token: string,
@@ -42,26 +38,16 @@ const Index = () => {
 
     // TODO: Set session
 
-
-    // setSession(window.sipapu.client.auth.session())
-
-
-    // const path = window.location.pathname
-    // const code = getSessionCode()
+    const path = window.location.pathname
+    const code = getSessionID()
     
-    // if (code) {
-    //   window.sipapu.Session.setSessionId(code)
-    // }
-
-    // if (path === '/') {
-    //   if (getSessionCode()) {
-    //     window.location.href = '/session/session'
-    //   } else if (window.sipapu.isLoggedIn()) {
-    //     window.location.href = '/auth/session'
-    //   }
-    // }
-
-    // window.sipapu.client.auth.onAuthStateChange((_event, session) => setSession(session))
+    if (path === '/') {
+      if (code) {
+        window.location.href = '/session/session'
+      } else if (auth) {
+        window.location.href = '/auth/session'
+      }
+    }
   }, [])
 
   if (loading) {
