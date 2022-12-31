@@ -220,6 +220,7 @@ const AddSongModal = ({ open, setOpen, notify, forceReload, queryResult, playlis
       cover: queryResult.album.images[0].url ?? '/missing.jpg',
       length: queryResult.duration_ms,
       album: queryResult.album.name,
+      play_count: 0,
     }
   
     client.req('add_song_to_playlist', song)
