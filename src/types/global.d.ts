@@ -1,12 +1,9 @@
-import { Sipapu } from 'sipapu'
-
 declare global {
     namespace NodeJS {
         interface ProcessEnv {
             REACT_APP_TAWA_URL: string;
+            REACT_APP_TAWA_WS: string;
             REACT_APP_STATIC_URL: string;
-            REACT_APP_SUPABASE_URL: string;
-            REACT_APP_SUPABASE_KEY: string;
             REACT_APP_SPOTIFY_SEARCH_STRING: string;
             REACT_APP_SPOTIFY_CLIENT_ID: string;
             REACT_APP_SPOTIFY_AUTH: string;
@@ -15,10 +12,6 @@ declare global {
             REACT_APP_LOCALHOST: string;
             REACT_APP_LINK_URL: string;
         }
-    }
-
-    interface Window {
-        sipapu: Sipapu;
     }
 }
 
