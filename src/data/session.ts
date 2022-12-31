@@ -17,7 +17,7 @@ export const getSessionID = () => {
   if (item) {
     const obj = JSON.parse(item)
 
-    // if the session code is older than 24 hours, remove it
+    // if the session code is less than  24 hours old, then ok
     if (obj.timeSet + (1000 * 60 * 60 * 24) > (new Date()).getTime()) {
       return obj.id
     }

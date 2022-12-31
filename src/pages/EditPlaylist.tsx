@@ -223,7 +223,7 @@ type SongItemProps = {
   openModal: () => void
 }
 
-const SongItem = ({ song, selectSong, openModal }: SongItemProps) => {
+export const SongItem = ({ song, selectSong, openModal }: SongItemProps) => {
   const cover  = song.cover ?? '/missing.jpg'
   const artists = song.artists ?? 'YouTube'
 
@@ -248,9 +248,10 @@ type SongDetailModalType = {
   open: boolean
   setOpen: (open: boolean) => void
   notify: (notification: { title: string, message: string, severity: 'error' | 'success' }) => void
+  removeAvailable?: boolean
 }
 
-const SongDetailModal = ({ open, setOpen, song, notify }: SongDetailModalType) => {
+export const SongDetailModal = ({ open, setOpen, song, notify, removeAvailable }: SongDetailModalType) => {
   if (!song) return null
 
   const remove = (id: number) => {
@@ -292,7 +293,7 @@ const SongDetailModal = ({ open, setOpen, song, notify }: SongDetailModalType) =
     </DialogContent>
 
     <DialogActions>
-      <Button onClick={() => remove(song.id!)}>Remove</Button>
+      {removeAvailable === false ? null : <Button onClick={() => remove(song.id!)}>Remove</Button>}
       <Button onClick={() => setOpen(false)}>Close</Button>
     </DialogActions>
   </Dialog>
