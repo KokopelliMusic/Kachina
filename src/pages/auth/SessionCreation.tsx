@@ -8,8 +8,8 @@ import { Add } from '@mui/icons-material'
 import Kokopelli from '../../components/Kokopelli'
 import { createSpotifyLink, fetchSpotifyToken } from '../LogIntoSpotify'
 import OTP from '../../components/OTP'
-import { Playlist } from '../../types/tawa'
-import { client, KokopelliSettings, QueueAlgorithms } from '../../data/client'
+import { Playlist, KokopelliSettings, QueueAlgorithms } from '../../types/tawa'
+import { client } from '../../data/client'
 import { saveSessionID } from '../../data/session'
 
 // 1. Session settings
@@ -84,6 +84,7 @@ const SessionCreation = () => {
         window.location.href = '/session/session'
       })
       .catch(err => {
+        console.error(err)
         notify({ title: 'Error', message: err.message, severity: 'error' })
       })
   }, [sessionID])
