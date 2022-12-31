@@ -3,8 +3,9 @@ import { Button, Typography } from '@mui/material'
 import { Box } from '@mui/system'
 import useRedirect from '../../components/Redirect'
 import { useParams } from 'react-router'
-import { getSessionCode } from '../../data/session'
+import { getSessionID } from '../../data/session'
 import { useNotification } from '../../components/Snackbar'
+import { client } from '../../data/client'
 
 type AddProps = {
   session?: boolean
@@ -20,12 +21,12 @@ const Add = ({ session }: AddProps) => {
   
   useEffect(() => {
     if (session) {
-      const code = getSessionCode()
+      const code = getSessionID()
       if (code) {
-        window.sipapu.Session.get(code)
-          .then(session => {
-            if (session) {
-              setId(session.playlistId)
+        client.req('get_session', { session_id: code })
+          .then(settings => {
+            if (settings) {
+              setId(settings.session.playlist_id)
             }
           })
       }

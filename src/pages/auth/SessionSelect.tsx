@@ -5,7 +5,8 @@ import { useNavigate } from 'react-router'
 import OTP from '../../components/OTP'
 import useRedirect from '../../components/Redirect'
 import { useNotification } from '../../components/Snackbar'
-import { saveSessionCode } from '../../data/session'
+import { client } from '../../data/client'
+import { saveSessionID } from '../../data/session'
 
 const SessionSelect = () => {
   const [code, setCode] = useState<string>()
@@ -16,9 +17,10 @@ const SessionSelect = () => {
 
   const joinSession = () => {
     if (code && code.length === 4) {
-      window.sipapu.Session.join(code)
+
+      client.req('join_session', { session_id: code })
         .then(() => {
-          saveSessionCode(code)
+          saveSessionID(code)
           navigate('/session/session')
         })
         .catch(err => {

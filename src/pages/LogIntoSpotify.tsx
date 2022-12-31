@@ -2,6 +2,7 @@ import { Button, CircularProgress, Typography } from '@mui/material'
 import { Box } from '@mui/system'
 import React, { useEffect, useState } from 'react'
 import { useNotification } from '../components/Snackbar'
+import { client } from '../data/client'
 
 type LogIntoSpotifyProps = {
   redirectBack: string
@@ -25,16 +26,13 @@ export const fetchSpotifyToken = (code: string, redirectUri: string, redirectBac
     .then(data => {
       if (!data) return notify({ title: 'Error', message: 'Spotify authentication failed, please try again.', severity: 'error' })
 
-      window.sipapu.Spotify.create({
-        accessToken: data.access_token,
-        refreshToken: data.refresh_token,
-        expiresAt: new Date(new Date().getTime() + data.expires_in)
-      }).then(() => {
+      client.req('set_spotify', { access_token: data.access_token, refresh_token: data.refresh_token, expires_at: new Date(new Date().getTime() + data.expires_in) })
+        .then(() => {
         // Redirect back to original location after successful login
-        window.location.href = redirectBack
-      }).catch(err => {
-        notify({ title: 'Error', message: err.message, severity: 'error' })
-      })
+          window.location.href = redirectBack
+        }).catch(err => {
+          notify({ title: 'Error', message: err.message, severity: 'error' })
+        })
     })
     .catch(err => {
       console.error(err)

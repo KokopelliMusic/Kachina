@@ -1,30 +1,33 @@
 import { Box } from '@mui/system'
-import { Dialog, DialogActions, Button, DialogContent, DialogContentText, DialogTitle, Fab, List, ListItem, ListItemAvatar, ListItemButton, ListItemText, Skeleton, TextField, Typography } from '@mui/material'
+import { Dialog, DialogActions, Button, DialogContent, DialogContentText, DialogTitle, Fab, List, ListItem, ListItemAvatar, ListItemButton, ListItemText, Skeleton, TextField, Typography, Fade } from '@mui/material'
 import React, { useEffect } from 'react'
-import { PlaylistType } from 'sipapu/dist/src/services/playlist'
 import { Add } from '@mui/icons-material'
 import QueueMusicIcon from '@mui/icons-material/QueueMusic'
 import { useNotification } from '../components/Snackbar'
 import useRedirect from '../components/Redirect'
 import Kokopelli from '../components/Kokopelli'
+import { Playlist } from '../types/tawa'
+import { client } from '../data/client'
 
 // TODO notify that playlists are public
 // TODO cache the playlists
 
 const Playlists = () => {
-  const [playlists, setPlaylists]     = React.useState<PlaylistType[]>([])
+  const [playlists, setPlaylists]     = React.useState<Playlist[]>([])
   const [loading, setLoading]         = React.useState(true)
   const [openModal, setOpenModal]     = React.useState(false)
   const [forceReload, setForceReload] = React.useState(false)
   const [notify, Snackbar]            = useNotification()
 
+  const load = () => setTimeout(() => setLoading(false), 500)
+
   useEffect(() => {
     if (forceReload) {
       setForceReload(false)
     }
-    window.sipapu.Playlist.getAllFromUser()
+    client.req('get_playlists', {})
       .then(setPlaylists)
-      .then(() => setLoading(false))
+      .then(load)
       .catch(err => {
         notify({ title: 'Error', message: err.message, severity: 'error' })
       })
@@ -80,14 +83,16 @@ const Playlists = () => {
   return <Box className="w-full h-full">
     <Snackbar />
     <NewPlaylistModal open={openModal} setOpen={setOpenModal} notify={notify} forceReload={setForceReload} />
-    <main className="mb-auto flex flex-col items-center scroll">
-      <List sx={{ width: '100%' }}>
-        {playlists.map(playlist => (<div key={playlist.id}>
-          <PlaylistItem playlist={playlist}/>
-        </div>))}
-      </List>
-      <div className="mt-28" />
-    </main>
+    <Fade in={true} timeout={250}>
+      <main className="mb-auto flex flex-col items-center scroll">
+        <List sx={{ width: '100%' }}>
+          {playlists.map(playlist => (<div key={playlist.id}>
+            <PlaylistItem playlist={playlist}/>
+          </div>))}
+        </List>
+        <div className="mt-28" />
+      </main>
+    </Fade>
 
 
     <div className="fixed bottom-20 right-6">
@@ -99,7 +104,7 @@ const Playlists = () => {
 }
 
 type PlaylistItemProps = {
-  playlist: PlaylistType
+  playlist: Playlist
   onClick?: () => void
 }
 
@@ -117,7 +122,7 @@ export const PlaylistItem = ({ playlist, onClick }: PlaylistItemProps) => {
       <ListItemAvatar>
         <QueueMusicIcon />
       </ListItemAvatar>
-      <ListItemText primary={playlist.name} secondary={playlist.createdAt.toDateString()} />
+      <ListItemText primary={playlist.name} secondary={new Date(playlist.created_at).toLocaleString('nl-NL')} />
     </ListItemButton>
   </ListItem>
 }
@@ -139,7 +144,8 @@ export const NewPlaylistModal = ({ open, setOpen, notify, forceReload }: NewPlay
     if (name === '') return setError(true)
   
     setError(false)
-    window.sipapu.Playlist.create(name)
+
+    client.req('create_playlist', { name })
       .then(() => {
         handleClose()
         forceReload(true)

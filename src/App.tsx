@@ -19,6 +19,7 @@ import Queue from './pages/session/Queue'
 import HistoryElement from './pages/session/History'
 import Settings from './pages/Settings'
 import AppUrlListener from './components/AppUrlListener'
+import { Box, Fade } from '@mui/material'
 
 export const authPages = {
   playlists:        <AuthRouter element={<Playlists />} pageName="playlists" />,
@@ -47,48 +48,59 @@ export const sessionPages = {
   history:  <SessionRouter element={<HistoryElement />} pageName="history" />,
 }
 
+interface AppProps {
+  auth: boolean
+}
 
-function App() {
+
+function App({ auth }: AppProps) {
 
   useEffect(() => {
     // Always scroll to the top!
     document.getElementById('main-div')?.scrollTo(0,0)
   }, [])
 
-  return <BrowserRouter>
-    <AppUrlListener />
-    {window.sipapu.isLoggedIn() ?
-      <Routes>
-        <Route path="/session/">
-          <Route path="playlist" element={sessionPages.playlist} />
-          <Route path="session" element={sessionPages.session} />
-          <Route path="settings" element={sessionPages.settings} />
-          <Route path="add" element={sessionPages.add} />
-          <Route path="queue" element={sessionPages.queue} />
-          <Route path="history" element={sessionPages.history} />
-          <Route path="add/spotify/:id" element={sessionPages.spotify} />
-          <Route path="add/youtube/:id" element={sessionPages.youtube} />
-          <Route path="profile" element={sessionPages.profile} />
-          <Route path="*" element={sessionPages.notFound} />
-        </Route>
-        <Route path="/auth/">
-          <Route path="playlists" element={authPages.playlists} />
-          <Route path="session" element={authPages.session} />
-          <Route path="profile" element={authPages.profile} />
-          <Route path="edit/:id" element={authPages.edit} />
-          <Route path="add/:id" element={authPages.add} />
-          <Route path="add/spotify/:id" element={authPages.spotify} />
-          <Route path="add/youtube/:id" element={authPages.youtube} />
-          <Route path="sessionCreation" element={authPages.sessionCreation} />
-          <Route path="login/spotify" element={authPages.logIntoSpotify} />
-          <Route path="help" element={authPages.help} />
-          <Route path="*" element={authPages.notFound} />
-        </Route>
-      </Routes> :
-      <AnonRouter />
-    }
-  </BrowserRouter>
-
+    
+  return <Fade in={true} timeout={250}>
+    <Box>
+      <BrowserRouter>
+        <AppUrlListener />
+        {auth ?
+          <Routes>
+            <Route path="/session/">
+              <Route path="playlist" element={sessionPages.playlist} />
+              <Route path="session" element={sessionPages.session} />
+              <Route path="settings" element={sessionPages.settings} />
+              <Route path="add" element={sessionPages.add} />
+              <Route path="queue" element={sessionPages.queue} />
+              <Route path="history" element={sessionPages.history} />
+              <Route path="add/spotify/:id" element={sessionPages.spotify} />
+              <Route path="add/youtube/:id" element={sessionPages.youtube} />
+              <Route path="profile" element={sessionPages.profile} />
+              <Route path="*" element={sessionPages.notFound} />
+            </Route>
+            <Route path="/auth/">
+              <Route path="playlists" element={authPages.playlists} />
+              <Route path="session" element={authPages.session} />
+              <Route path="profile" element={authPages.profile} />
+              <Route path="edit/:id" element={authPages.edit} />
+              <Route path="add/:id" element={authPages.add} />
+              <Route path="add/spotify/:id" element={authPages.spotify} />
+              <Route path="add/youtube/:id" element={authPages.youtube} />
+              <Route path="sessionCreation" element={authPages.sessionCreation} />
+              <Route path="login/spotify" element={authPages.logIntoSpotify} />
+              <Route path="help" element={authPages.help} />
+              <Route path="*" element={authPages.notFound} />
+            </Route>
+            <Route path="/">
+              <Route path="" element={authPages.notFound} />
+            </Route>
+          </Routes> :
+          <AnonRouter />
+        }
+      </BrowserRouter>
+    </Box>
+  </Fade>
 }
 
 export default App
